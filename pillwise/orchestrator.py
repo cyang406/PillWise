@@ -26,10 +26,20 @@ log = logging.getLogger(__name__)
 def build_report(meds: list[Medication], patient: PatientContext) -> Report:
     settings = get_settings()
 
-    meds = normalize.normalize_all(meds)  # TODO(A)
-    result = checks.run_all(meds, patient)  # B
-    findings = evidence.attach_label_evidence(result.findings, meds)  # TODO(A)
-    cards = explain.pill_cards(meds)  # TODO(A)
+    meds = normalize.normalize_all(meds)  # never raises; failures keep rxcui=None
+    result = checks.run_all(meds, patient)  # B: rules and data decide every finding
+
+    # Steps 3 and 4 only ADD text. If they fail, keep the findings as they are.
+    try:
+        findings = evidence.attach_label_evidence(result.findings, meds)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("label evidence step failed: %s", exc)
+        findings = result.findings
+    try:
+        cards = explain.pill_cards(meds)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("pill card step failed: %s", exc)
+        cards = []
 
     unchecked = sorted({m.name for m in meds if m.rxcui is None and not m.ingredients} | set(result.unmatched))
     unchecked += [f"(checker '{name}' failed: {err})" for name, err in result.errors.items()]
