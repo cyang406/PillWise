@@ -7,14 +7,13 @@ Owner keeps this current. The integration agent reads it before merging.
 - B1 DDInter 2.0: 10 CSVs (codes A,B,D,H,L,M,N,P,R,V) from https://ddinter2.scbdd.com/static/media/download/ddinter_downloads_code_<X>.csv, headers match the loader; `make ddinter` -> 336,075 rows, 215,570 unique pairs, no level conflicts. Golden names all present as plain RxNorm IN names: no name mapping needed.
 - B2 `checks/ddinter.py`: pairwise lookup by `match_names`, DDInter level -> severity, template text, DDInter evidence. Missing DB raises (-> `CheckResult.errors`, "could not check").
 - B4 `checks/beers.py`: single-drug (caution) + combo rules `count_tag` / `pair_tags` (moderate); skipped under 65; "If you are 65 or older" when age unknown.
-- B5 (code) `checks/onc.py`: group_a x group_b pairs -> major; only `verified: true` rules unless `PILLWISE_MOCK=1`.
+- B5 `checks/onc.py` + `data/onc_high.json`: group_a x group_b pairs -> major; only `verified: true` rules unless `PILLWISE_MOCK=1`. All 7 rules checked against Phansalkar 2012 Table 2 and verified.
 - B6 `audit.py`: plain sqlite3 table `audit_events` at `settings.audit_db`; `log_report` / `log_event` / `recent_events` (newest first). Stores no raw_text, photos or age.
 - B7 `checks/__init__.py`: `CheckResult.unmatched` = meds whose names no working checker knows (each checker has `known_names()`).
 - `pillwise/synthea.py` STUB (PARALLEL_AB seam 3): `list_patients(limit)` / `patient_meds(id)` with 2 hard-coded synthetic patients; real data comes with B12. Test: `tests/test_load_synthea.py`.
 - B8 tests: `tests/test_checks_{ddinter,beers,onc,registry,audit}.py`, `tests/test_load_golden_names.py` (golden list from `docs/PARALLEL_AB.md`).
 
 ## Stubbed or still mock
-- B5 data: every rule in `data/onc_high.json` is still `verified: false`, so ONC emits nothing in real mode.
 - DDInter evidence URL is the site root (per-interaction page URL not confirmed).
 
 ## How to run / verify my part

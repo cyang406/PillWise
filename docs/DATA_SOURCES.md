@@ -59,15 +59,14 @@ Combinations (`combos`; Table 5, "drug-drug interactions to avoid"):
 
 ### ONC high-priority list: `data/onc_high.json` → [paper](https://doi.org/10.1136/amiajnl-2011-000612)
 
-Check each pair is in the paper's final table of high-priority interactions, and that
-every name in `group_a` / `group_b` belongs to the class the paper names.
+Checked against Table 2 (final accepted interactions). The paper says its class lists are not complete.
 
-- [ ] `statin_cyp3a4`: simvastatin / lovastatin + strong CYP3A4 inhibitors (4 names).
-- [ ] `methotrexate_trimethoprim`
-- [ ] `tizanidine_cyp1a2`: tizanidine + ciprofloxacin / fluvoxamine.
-- [ ] `maoi_serotonergic`: MAOIs + 11 serotonergic / sympathomimetic drugs. Check each name; the paper may define the classes more narrowly.
-- [ ] `atazanavir_ppi`
-- [ ] `ramelteon_fluvoxamine`
+- [x] `statin_cyp3a4`: all names in Table 2. Summary reworded (the muscle-damage text belonged to a different pair).
+- [x] `methotrexate_trimethoprim`: **removed.** Not in the paper.
+- [x] `tizanidine_cyp1a2`: names in Table 2. Summary reworded (no symptoms stated in the paper).
+- [x] `maoi_serotonergic`: **split into 3 rules** matching Table 2: `maoi_amphetamine_derivatives` (pseudoephedrine; selegiline left out because the paper flags its MAO-B selectivity there), `maoi_serotonergic` (SSRIs/SNRIs), `maoi_narcotic` (tramadol, meperidine, dextromethorphan). Summaries reworded.
+- [x] `atazanavir_ppi`: names in Table 2. Summary reworded (no mechanism stated in the paper).
+- [x] `ramelteon_fluvoxamine`: in Table 2. Summary reworded.
 
 After flipping a flag, run `make check` and `make scenarios-real` (the `safe_otc`
 scenario must still show nothing above minor).
@@ -78,3 +77,4 @@ scenario must still show nothing above minor).
 | --- | --- | --- | --- |
 | 2026-10-28 | Beers: all 15 single-drug + 5 combo entries | 2023 AGS Beers Criteria, Tables 2, 3, 5, 7, 8 | B (team member) |
 | 2026-10-28 | Beers fixes: ketoprofen removed (moved to Table 8); `bladder_antimuscarinics` removed; meperidine risk reworded; `warfarin_antibiotic` risk/advice reworded; conditions/exceptions added to sulfonylureas, PPIs, warfarin, metoclopramide, opioid + gabapentinoid; "do not stop suddenly" dropped where the criterion does not say it; `cns_active` / `opioid` tags extended (fentanyl, tapentadol, meperidine, metaxalone, orphenadrine) | same | B |
+| 2026-10-28 | ONC: all rules; methotrexate + trimethoprim removed; MAOI rule split into 3; every summary reduced to "on an expert list of pairs that should not be prescribed together" | Phansalkar 2012, Table 2 | B |
