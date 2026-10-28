@@ -66,12 +66,25 @@ Never give doses or tell the person how much or how often to take it.
 - what_it_is_for: one or two short sentences: what this medicine is used for.
 - watch_for: up to 4 short items (under 15 words each): the most important warnings
   or side effects from the label that the person should watch for.
+  Each item is ONE warning and must make sense on its own.
+
+IMPORTANT: the label text below lost its bullet points. After openers such as
+"Do not use", "Ask a doctor before use if you have", "Ask a doctor or pharmacist before
+use if you are", "When using this product" or "Stop use and ask a doctor if", the phrases
+that follow are SEPARATE list items run together. Never combine two of them into one item.
+Example: "Do not use for children under 12 years of age with any other product containing
+X" is two items: "Not for children under 12" and "Do not use with other products that
+contain X".
 
 WHAT IT IS FOR (label):
 {purpose}
 
 WARNINGS (label):
 {warnings}"""
+
+
+#: A "watch for" item longer than this is almost always two label items run together: drop it.
+_MAX_ITEM_WORDS = 20
 
 
 def _first_sentence(text: str, limit: int = 300) -> str | None:
@@ -117,7 +130,7 @@ def pill_card(med: Medication) -> PillCard:
         return PillCard(
             **base,
             what_it_is_for=out.what_it_is_for.strip() or (quote or NO_LABEL),
-            watch_for=[w.strip() for w in out.watch_for if w.strip()][:4],
+            watch_for=[w.strip() for w in out.watch_for if w.strip() and len(w.split()) <= _MAX_ITEM_WORDS][:4],
             evidence=ev,
         )
     except Exception as exc:  # noqa: BLE001 - fall back to the label's own words
@@ -152,6 +165,7 @@ SIMPLIFY_PROMPT = """Rewrite this medicine warning for an older adult with limit
 Rules:
 - Use short sentences and everyday words (6th-grade reading level or easier).
 - Keep EVERY fact. Do not add facts, numbers, doses, drug names or advice that are not in the text.
+- Keep every medicine name that appears in the text, spelled the same way.
 - Do not make the warning sound weaker or stronger than it is.
 - At most 3 sentences. Return only the rewritten text.
 {hint}
@@ -177,8 +191,38 @@ def _adds_dosing(rewrite: str, source: str) -> bool:
     return any(m.group(0).lower() not in src for m in _DOSE_RE.finditer(rewrite))
 
 
-def plain_rewrite(source: str, target: float) -> str:
-    """Rewrite `source` until its reading grade <= target (max 3 tries). Returns the easiest safe version."""
+def _has_name(name: str, text: str) -> bool:
+    return re.search(rf"\b{re.escape(name)}\b", text, re.IGNORECASE) is not None
+
+
+def _name_problem(rewrite: str, source: str, names: set[str]) -> str | None:
+    """Why the rewrite changed which medicines are named, or None if it kept them exactly."""
+    dropped = sorted(n for n in names if _has_name(n, source) and not _has_name(n, rewrite))
+    added = sorted(n for n in names if _has_name(n, rewrite) and not _has_name(n, source))
+    if dropped:
+        return f"You left out these medicine names; keep them: {', '.join(dropped)}."
+    if added:
+        return f"You named medicines that are not in the warning; remove them: {', '.join(added)}."
+    return None
+
+
+def report_names(report: Report) -> set[str]:
+    """Every medicine name in the report (ingredients, display and generic names), lower case."""
+    names: set[str] = set()
+    for m in report.meds:
+        names.update(i.lower() for i in m.ingredients)
+        names.update(n.strip().lower() for n in (m.name, m.generic_name) if n and n.strip())
+    for f in report.findings:
+        names.update(f.drugs)
+    return {n for n in names if len(n) >= 3}
+
+
+def plain_rewrite(source: str, target: float, names: set[str] | frozenset[str] = frozenset()) -> str:
+    """Rewrite `source` until its reading grade <= target (max 3 tries). Returns the easiest safe version.
+
+    A rewrite is rejected if it adds a dose-like number or changes which medicines from
+    `names` are mentioned (a dropped or added name could attach a warning to the wrong drug).
+    """
     best, best_grade = source, _grade(source)
     hint = ""
     for _ in range(3):
@@ -191,6 +235,11 @@ def plain_rewrite(source: str, target: float) -> str:
             break
         if not out or _adds_dosing(out, source):
             log.warning("rejected rewrite (empty or added dosing)")
+            continue
+        problem = _name_problem(out, source, set(names))
+        if problem:
+            log.warning("rejected rewrite (medicine names changed)")
+            hint = f"\n{problem}\n"
             continue
         g = _grade(out)
         if g < best_grade:
@@ -217,11 +266,12 @@ def simplify(report: Report, language: Language = "en") -> SimplifiedSummary:
     if language != "en":
         raise NotImplementedError("translation (es/zh) is not built yet")
     target = get_settings().target_reading_grade
+    names = report_names(report)
 
     sections: list[SimplifiedSection] = []
     for f in report.sorted_findings():
         source = f"{f.plain_summary} {_strip_footer(f.what_to_do)}".strip()
-        text = f"{plain_rewrite(source, target)} {SAFETY_FOOTER}"  # footer added by code, always
+        text = f"{plain_rewrite(source, target, names)} {SAFETY_FOOTER}"  # footer added by code, always
         sections.append(
             SimplifiedSection(title=f"{SEVERITY_WORDS[f.severity]}: {f.title}", text=text, source_ids=[f.id])
         )

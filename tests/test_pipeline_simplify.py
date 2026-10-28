@@ -86,3 +86,31 @@ def test_unchecked_meds_get_their_own_section(monkeypatch):
 def test_translation_not_built_yet():
     with pytest.raises(NotImplementedError):
         explain.simplify(_report(), "es")
+
+
+def test_rewrite_dropping_a_drug_name_is_rejected_then_retried(monkeypatch):
+    source = HARD + " Warfarin users are at particular risk."
+    calls = []
+    replies = iter(
+        ["This medicine can make you bleed more. Ask first.", "Warfarin can make you bleed more. Ask first."]
+    )
+
+    def fake(prompt, **kw):
+        calls.append(prompt)
+        return next(replies)
+
+    monkeypatch.setattr(llm, "text", fake)
+    out = explain.plain_rewrite(source, 6.0, {"warfarin", "ibuprofen"})
+    assert out.startswith("Warfarin")
+    assert "keep them: warfarin" in calls[1]
+
+
+def test_rewrite_adding_another_drug_is_rejected(monkeypatch):
+    monkeypatch.setattr(llm, "text", lambda prompt, **kw: "Ibuprofen and warfarin can make you bleed. Ask first.")
+    source = HARD + " Warfarin users are at particular risk."
+    assert explain.plain_rewrite(source, 6.0, {"warfarin", "ibuprofen"}) == source
+
+
+def test_report_names_cover_meds_and_findings():
+    names = explain.report_names(_report())
+    assert {"warfarin", "ibuprofen", "acetaminophen"} <= names
