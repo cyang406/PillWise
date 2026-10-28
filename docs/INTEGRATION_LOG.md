@@ -14,6 +14,17 @@ Written by the integration agent (see CLAUDE.md, "Integration protocol"). Newest
 - Contract requests raised:
 - Risks for the demo:
 
+## 13:24 · integration/1324 → main · tag cp2
+- Branch heads merged: b-data `b3d6483`, a-pipeline `f10d3a4`. c-ui: still no remote branch (UI is main's skeleton).
+- Conflicts: none. Fixes on the integration branch: none.
+- `make check`: pass (114 passed).
+- `make scenarios-real`: safe_otc PASS, warfarin_nsaid PASS, beers_sleep_aid PASS. Offline (`PILLWISE_OFFLINE=1`): all 3 PASS. Real-mode `tests/test_scenarios.py`: pass.
+- Live photo check: new `bottle_7.png` (B) reads as Ibuprofen 200 mg, directions null (front of an OTC bottle; none printed) → `ibuprofen`. `bottle_1.png` → warfarin, directions copied exactly.
+- UI smoke (AppTest, real + offline; script not committed because tests/test_app_* belong to C): Results renders findings, evidence (DDInter / Beers 2023 / openFDA) and pill cards for all 3 scenarios, with no mock banner. A list with an unknown drug shows the "could not check" box. Summary page renders real sections, reading grade 4.8 to 5.3. Home renders.
+- New since cp1: A8 plain-language summary (en), A10 quiz, abbreviation expansion, quote retry, stricter directions rule, `data/cache/` warmed for the 3 scenarios (rxnorm, openfda, llm).
+- Still mock: nothing on the A/B path. Translation (es/zh) shows "Coming soon" by decision. Quiz has no UI yet (C9).
+- Risks for the demo: C's UI work not merged at CP2. Streamlit warns `use_container_width` is deprecated (app/Home.py, C). Live photo reading needs network.
+
 ## 13:01 · contract commit on main (docs/PARALLEL_AB.md)
 - `mocks.mock_check_result()` added (+ contract test).
 - `config.openai_api_key` added (additive). `.env.example` now lists `OPENAI_API_KEY` and OpenAI model names. Code defaults for `model_main` / `model_fast` were left unchanged (additive-only rule after 12:30); set them in `.env`.
