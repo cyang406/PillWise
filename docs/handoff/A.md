@@ -29,8 +29,11 @@ Confirmed against RxNorm on 2026-10-28. `ingredients` are lower-case RxNorm IN n
 - Live photo test on B's 5 photos (7 medicines): names and directions correct; directions null when cut off or absent. Pharmacy abbreviations (APAP, HCTZ, HYDROCO, SOD...) expanded by a fixed table before RxNorm. openFDA quotes retried once when not verbatim.
 - CP1 integration with B done (`integration/1249` → main, tag `cp1`): all 3 scenarios pass in real mode.
 
+- A8 `explain.simplify` (English): one section per finding, most serious first, title prefixed by a code-set severity word ("Serious", "Important", "Be careful", "Minor", "Unclear"). The LLM rewrites until the `textstat` grade is at most 6 (max 3 tries, keeps the easiest version). A rewrite that adds a dose-like number is rejected. The pharmacist footer is added by code. Extra sections: "No problems found" (never says "safe") and "Could not check". `es` / `zh` raise `NotImplementedError` (the UI shows "Coming soon"). Live grades: 5.0 to 5.3 overall.
+- A10 `explain.make_quiz`: the LLM writes the question and answers, then code places the correct answer at a stable position. The explanation is the checker's own summary. Questions with the same lesson are asked once, and `unknown` findings are skipped. Any failure or dose-like answer falls back to a fixed question.
+
 ## Stubbed or still mock
-- `explain.simplify`, `explain.make_quiz`, `agents/clinic.py`: not started (stretch).
+- Translation (A9) not built: English only by team decision. `agents/clinic.py` (A11) not started.
 
 ## How to run / verify my part
 ```bash
