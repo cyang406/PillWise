@@ -4,25 +4,39 @@ from __future__ import annotations
 
 import streamlit as st
 
-from components import disclaimer, finding_card, mock_banner, pill_card, unchecked_box
+from components import (
+    checked_as,
+    disclaimer,
+    finding_card,
+    inject_css,
+    mock_banner,
+    pill_card,
+    summary_line,
+    unchecked_box,
+)
 
+st.set_page_config(page_title="PillWise · Results", page_icon="💊", layout="centered")
+inject_css()
 st.title("Your medicine check")
 report = st.session_state.get("report")
 if report is None:
     st.info("No results yet. Add your medicines on the Home page.")
+    st.page_link("Home.py", label="Go to Home", icon="🏠")
     st.stop()
 
 mock_banner(report)
 unchecked_box(report)
+summary_line(report)
 
 findings = report.sorted_findings()
-st.subheader(f"{len(findings)} thing(s) to talk about" if findings else "No problems found in our sources")
+st.subheader(f"{len(findings)} thing(s) to talk about with your pharmacist" if findings else "Nothing flagged")
 for f in findings:
     finding_card(f)
 
 st.subheader("Your medicines, explained")
 for c in report.pill_cards:
     pill_card(c)
+checked_as(report)
 
 with st.expander("Data sources and versions"):
     st.json(
@@ -34,5 +48,6 @@ with st.expander("Data sources and versions"):
         }
     )
 
-# TODO(C): interaction graph (pyvis/plotly), printable PDF, language toggle -> pages/2_Summary.py
+st.page_link("pages/2_Summary.py", label="Read a plain-language summary", icon="📝")
+st.page_link("Home.py", label="Check another list", icon="🏠")
 disclaimer()
