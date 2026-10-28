@@ -37,8 +37,11 @@ PROMPT = """Read the medicine bottle(s) or package(s) in this photo.
 Return one entry per separate bottle or package you can see. For each:
 - name: the medicine name as printed (brand or generic, e.g. "Advil" or "Ibuprofen").
 - strength: the strength as printed (e.g. "200 mg"), or null if you cannot read it.
-- directions: the directions for use COPIED WORD FOR WORD from the label, or null if you
-  cannot read them clearly. Never write directions yourself, never summarize or fix them.
+- directions: the directions for use COPIED WORD FOR WORD from the label, including
+  every number, unit and bracket. Return null if ANY part of the directions is cut off,
+  hidden, folded around the bottle, blurred or unreadable. Never join visible fragments
+  into a sentence, never fill gaps, never write, summarize or fix directions. A partly
+  read direction is more dangerous than none: the person will type it in.
 - raw_text: the main label text you can read for that item, copied as printed.
 
 Do not guess. If a word is unreadable, leave it out. If there is no readable medicine
