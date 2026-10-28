@@ -2,15 +2,16 @@
 
 [theme]
 base = "light"
-# Atkinson Hyperlegible is designed for low-vision readers; falls back to sans-serif offline.
-font = "'Atkinson Hyperlegible':https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+# Inter, from the design canvas; falls back to sans-serif offline.
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 baseFontSize = 17
-# Teal, not Streamlit's default red: red is reserved for "Serious" findings.
-primaryColor = "#0F6B63"
-backgroundColor = "#F5F7F6"
-secondaryBackgroundColor = "#EAF0EE"
-textColor = "#15201E"
-borderColor = "#D9E1DE"
+baseRadius = "large"
+# Blue, not Streamlit's default red: red is reserved for "Serious" findings.
+primaryColor = "#2563EB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F7FB"
+textColor = "#0F172A"
+borderColor = "#E2E8F0"
 
 [client]
 # Hide the developer toolbar ("Deploy" etc.) and the page list (PillWise is one page).

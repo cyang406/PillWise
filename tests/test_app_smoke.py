@@ -74,7 +74,7 @@ def _report(**kw) -> Report:
 def test_home_renders_without_results(mock_mode):
     at = AppTest.from_file(HOME).run(timeout=60)
     assert not at.exception
-    assert headers(at) == ["Your medicines"]
+    assert "Do your pills mix well?" in text_of(at) and "Results" not in headers(at)
 
 
 def test_web_has_no_camera_mobile_has_it(mock_mode):
@@ -91,7 +91,7 @@ def test_sample_check_shows_everything_on_one_page(mock_mode):
     text = text_of(at)
     _, head, _ = components.verdict(report)
     assert head in text  # verdict first
-    assert "Take this to your pharmacist" in text
+    assert "Ask your pharmacist" in headers(at)
     assert components.questions(report)[0][1] in text  # questions to ask
 
 
@@ -99,7 +99,7 @@ def test_results_hide_when_the_list_changes(mock_mode):
     at = checked("warfarin_nsaid")
     next(b for b in at.button if b.label == "Remove").click().run(timeout=60)
     assert "Your list changed since the last check" in text_of(at)
-    assert "What we found" not in headers(at)
+    assert "Results" not in headers(at)
 
 
 def test_typed_unknown_medicine_is_could_not_check(mock_mode):
@@ -169,9 +169,19 @@ def test_one_page_real_offline(real_mode, scenario, tmp_path, monkeypatch):
     assert not at.session_state["report"].is_mock and "mock mode" not in text
     assert "Some safety checks did not run" not in text
     assert "**Audit log** (" in " ".join(str(m.value) for m in at.markdown)
-    assert any("what the label says" in e.label for e in at.expander)  # pregnancy / children quotes
+    assert "what the label says" in text  # pregnancy / children quotes in "About each medicine"
     if scenario == "warfarin_nsaid":
         assert "Serious" in text
         at.text_input[-1].set_value("Aleve")
-        button(at, "Check against my list").click().run(timeout=60)
+        button(at, "Check").click().run(timeout=60)
         assert "naproxen + warfarin" in text_of(at).lower()
+
+
+def test_unmatched_name_is_flagged_before_the_check(mock_mode):
+    at = AppTest.from_file(HOME).run(timeout=60)
+    at.text_input[0].set_value("Mysterol")
+    button(at, "Add to my list").click().run(timeout=60)
+    assert "Please check this name" in text_of(at)
+    assert at.session_state["items"][0]["ok"] is False  # starts unticked: look at the bottle again
+    load_sample(at, "safe_otc")
+    assert "Matched: acetaminophen" in text_of(at)

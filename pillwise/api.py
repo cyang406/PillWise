@@ -94,6 +94,20 @@ def clinic_patient(patient_id: str) -> Report:
     return clinic.patient_report(patient_id)
 
 
+def match_names(meds: list[Medication]) -> list[Medication]:
+    """Name -> RxNorm ingredients only (no checks), so the UI can flag names it can't match before checking.
+
+    Owner: A (normalize.py). Unmatched medicines come back unchanged (no ingredients); never a reason to say "safe".
+    """
+    if get_settings().mock:
+        from pillwise import mocks
+
+        return mocks.mock_match_names(meds)
+    from pillwise import normalize
+
+    return normalize.normalize_all(meds)
+
+
 def recent_audit_events(limit: int = 200) -> list[AuditEvent]:
     """Newest audit events for the UI trust panel (C3). Owner: B (audit.py). [] in mock mode (nothing logged)."""
     if get_settings().mock:

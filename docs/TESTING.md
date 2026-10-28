@@ -48,17 +48,17 @@ Start the app in real offline mode (`make app` with the variables above) and ope
 
 | # | Do | Expect |
 | --- | --- | --- |
-| 1 | Open the page | Disclaimer; "Add bottle photos", "Type a medicine", "Try a sample list"; no camera (web) |
+| 1 | Open the page | Disclaimer; Age box, "Add bottle photos" drop zone, "Type a name", "Try a sample"; no camera (web) |
 | 2 | Open `/?app=mobile` | A "Take a photo" camera appears (what the mobile app shows) |
-| 3 | Try a sample list → Warfarin nsaid | 3 medicine rows, all ticked, age 72 |
-| 4 | Untick one row | Orange outline and "Not ticked yet" reminder |
-| 5 | Check my list | Verdict "Ask your pharmacist about ibuprofen with warfarin before your next dose."; red Serious card |
+| 3 | Try a sample → Warfarin nsaid | 3 medicine rows, all ticked, age 72 |
+| 4 | Untick one row | Orange row and "Please check" reminder |
+| 5 | Check my list | Verdict "Ask your pharmacist before taking ibuprofen with warfarin."; red Serious card |
 | 6 | Open "Where this comes from" on the red card | DDInter record + FDA quote in quotation marks + DailyMed link that opens |
 | 7 | Remove a row | Results disappear: "Your list changed since the last check" |
 | 8 | Type "Mysterol", Check my list | Red box "We could not check: Mysterol … does NOT mean they are safe" |
-| 9 | Warfarin card → "Pregnancy, breastfeeding, children" | Exact FDA label sentences with the label date |
-| 10 | Take this to your pharmacist | Numbered questions, summary with reading level ≤ 6, quiz with score, both downloads work |
-| 11 | "Thinking of buying something new?" → Aleve | Aleve → naproxen; Serious with warfarin (works offline too: cached) |
+| 9 | About each medicine → Warfarin → "Pregnancy, breastfeeding, children" | Exact FDA label sentences with the label date |
+| 10 | Ask your pharmacist | Numbered questions, summary with reading level ≤ 6, quiz with score, both downloads work |
+| 11 | "Buying something new?" → Aleve | Aleve → naproxen; Serious with warfarin (works offline too: cached) |
 | 12 | "Sources and audit trail" | Data versions, FDA labels, audit entries for this report |
 | 13 | Turn Wi-Fi off (`PILLWISE_OFFLINE=1`), repeat 3 to 6 | Same results |
 | 14 | Online with `OPENAI_API_KEY`: select `bottle_1.png`, `gen_ibuprofen_200mg.png`, a copy of `bottle_1.png` and a blank image together | Read in parallel (about 4 s); 2 rows, directions copied exactly; "Already on your list" for the copy; "could not read" for the blank, still shown after the next click |

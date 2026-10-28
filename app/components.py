@@ -1,4 +1,4 @@
-"""Reusable Streamlit UI pieces for the one-page PillWise app. Owner: C.
+"""Reusable Streamlit UI pieces for the one-page PillWise app (design canvas v2). Owner: C.
 
 The UI imports ONLY `pillwise.api` and `pillwise.schemas` from the backend.
 Every sentence built here (verdict, questions, connections) restates a Finding; none adds,
@@ -11,13 +11,13 @@ import streamlit as st
 
 from pillwise.schemas import AuditEvent, Finding, GroupNote, Medication, PillCard, Report
 
-# severity -> (label people read, header tint, header ink, card border)
+# severity -> (label people read, tint, ink)
 SEVERITY_STYLE = {
-    "major": ("Serious", "#FBE9E7", "#8C1D18", "#F1C3BE"),
-    "moderate": ("Important", "#FDEEE0", "#8A3A00", "#F0CDA9"),
-    "caution": ("Extra care", "#FFF5D6", "#6B4A00", "#E5CF85"),
-    "minor": ("Minor", "#E5EEFA", "#1E4A8A", "#C3D5EE"),
-    "unknown": ("Not rated", "#EEF1F0", "#46524F", "#D9E1DE"),
+    "major": ("Serious", "#FEF2F2", "#B42318"),
+    "moderate": ("Important", "#FFEDD5", "#9A3412"),
+    "caution": ("Age 65+", "#FEF9C3", "#854D0E"),
+    "minor": ("Minor", "#EFF4FF", "#1D4ED8"),
+    "unknown": ("Not rated", "#F1F5F9", "#475569"),
 }
 
 # Stroke icons (no emoji): shape differs per severity, so color is never the only cue.
@@ -32,6 +32,17 @@ _ICON_PATHS = {
     '<line x1="12" y1="17" x2="12.01" y2="17"/>',
 }
 
+PILL_ICON = (
+    '<svg aria-hidden="true" width="30" height="30" viewBox="0 0 48 48"><rect x="7" y="17" width="34" height="14" '
+    'rx="7" transform="rotate(-25 24 24)" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/></svg>'
+)
+LOGO = (
+    '<span class="pw-logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" '
+    'stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path d="M10.5 20.5a4.95 4.95 0 0 1-7-7l10-10a4.95 4.95 0 0 1 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/>'
+    "</svg></span>"
+)
+
 GROUP_LABELS = {
     "pregnancy": "Pregnancy",
     "breastfeeding": "Breastfeeding",
@@ -39,10 +50,7 @@ GROUP_LABELS = {
     "women_men": "Women or men",
 }
 
-DISCLAIMER = (
-    "PillWise is an educational tool, not medical advice. It does not replace your pharmacist or doctor. "
-    "If you have urgent symptoms, call emergency services (911 in the US)."
-)
+DISCLAIMER = "For information only, not medical advice. Always check the label and ask a pharmacist or doctor."
 
 NO_DIRECTIONS = "We could not read directions on your label. Follow the package directions, or ask your pharmacist."
 
@@ -71,40 +79,56 @@ def icon(severity: str, size: int = 22) -> str:
 
 def inject_css(large_text: bool = False) -> None:
     sev_rules = "\n".join(
-        f'[class*="st-key-sev-{s}-"] {{ border-color: {border} !important; background: #FFFFFF; }}\n'
-        f'[class*="st-key-verdict-{s}"] {{ background: {tint} !important; border-color: {border} !important; }}\n'
-        f".pw-band-{s} {{ background: {tint}; color: {ink}; }}\n"
+        f'[class*="st-key-verdict-{s}"] {{ background: {tint} !important; border: 0 !important; }}\n'
         f".pw-ink-{s} {{ color: {ink}; }}\n"
-        f".pw-chip-{s} {{ background: {tint}; color: {ink}; border: 1px solid {border}; }}"
-        for s, (_, tint, ink, border) in SEVERITY_STYLE.items()
+        f".pw-chip-{s} {{ background: #FFFFFF; color: {ink}; }}\n"
+        f".pw-cell-{s} {{ background: {tint}; color: {ink}; }}"
+        for s, (_, tint, ink) in SEVERITY_STYLE.items()
     )
     st.markdown(
         f"""<style>
 html {{ font-size: {"19px" if large_text else "16px"}; }}
-.block-container {{ max-width: 1160px; padding-top: 1.5rem; }}
+.block-container {{ max-width: 1120px; padding-top: 1.25rem; }}
+h1, h2, h3, h4 {{ letter-spacing: -0.02em; }}
 {sev_rules}
-.pw-band {{ display: flex; align-items: center; gap: .5rem; margin: -1rem -1rem .75rem; padding: .55rem 1rem;
-  border-radius: .5rem .5rem 0 0; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .85rem; }}
-.pw-chip {{ display: inline-block; padding: .1rem .6rem; margin: 0 .3rem .3rem 0; border-radius: 999px;
-  font-size: .85rem; font-weight: 700; }}
-.pw-steps a {{ display: inline-block; margin: 0 .4rem .4rem 0; padding: .35rem .8rem; border-radius: 999px;
-  background: #E3F1EE; color: #0A4F49; text-decoration: none; font-weight: 700; font-size: .9rem; }}
-.pw-brand {{ display: flex; align-items: center; gap: .5rem; font-size: 1.6rem; font-weight: 700; color: #15201E; }}
+.pw-chip-major {{ background: #B42318; color: #FFFFFF; }}
+.pw-cell-major {{ background: #B42318; color: #FFFFFF; }}
+.pw-brand {{ display: flex; align-items: center; gap: .6rem; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }}
+.pw-logo {{ width: 34px; height: 34px; border-radius: 10px; background: #2563EB; display: inline-flex;
+  align-items: center; justify-content: center; }}
+.pw-steps a {{ display: inline-block; margin: .3rem .3rem 0 0; padding: .35rem .8rem; border-radius: 999px;
+  background: #EFF4FF; color: #1D4ED8; text-decoration: none; font-weight: 600; font-size: .9rem; }}
+.pw-hero {{ font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.03em; margin: .5rem 0 .25rem; }}
+.pw-step {{ font-weight: 600; }} .pw-step b {{ color: #2563EB; }}
+.pw-chip {{ display: inline-block; padding: .2rem .7rem; margin: .4rem .35rem 0 0; border-radius: 999px;
+  font-size: .85rem; font-weight: 600; }}
+.pw-badge {{ display: inline-block; padding: .05rem .5rem; border-radius: 6px; font-size: .8rem; font-weight: 600;
+  background: #EFF4FF; color: #1D4ED8; }}
+.pw-badge-check {{ background: #FFFFFF; color: #92400E; }}
+.pw-sev {{ font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; display: flex;
+  align-items: center; gap: .4rem; }}
 .pw-verdict {{ display: flex; gap: 1rem; align-items: flex-start; }}
-.pw-verdict h2 {{ margin: 0; padding: 0; font-size: 1.75rem; line-height: 1.25; }}
-.pw-pair {{ display: flex; justify-content: space-between; gap: .5rem; padding: .5rem .75rem; margin-bottom: .35rem;
-  border-radius: .6rem; }}
-.pw-quote {{ margin: 0 0 .6rem; padding-left: .75rem; border-left: 3px solid #C5D1CD; color: #2E3B38; }}
-.pw-src {{ font-size: .8rem; color: #4A5754; }}
-[class*="st-key-med-"][class*="-check"] {{ border: 2px solid #B54708 !important; background: #FFF8F1; }}
-[class*="st-key-newmed"] {{ background: #E3F1EE; border-color: #A9D3CB !important; }}
+.pw-verdict h2 {{ margin: 0; padding: 0; font-size: 1.7rem; line-height: 1.25; }}
+.pw-matrix {{ display: grid; gap: 4px; font-size: .8rem; text-align: center; }}
+.pw-matrix span {{ padding: .55rem .1rem; border-radius: 8px; }}
+.pw-matrix .h {{ font-weight: 600; }} .pw-matrix .r {{ text-align: left; font-weight: 600; }}
+.pw-matrix .e {{ background: #F5F7FB; }}
+.pw-quote {{ margin: 0 0 .6rem; padding-left: .75rem; border-left: 3px solid #CBD5E1; color: #334155; }}
+.pw-src {{ font-size: .8rem; color: #475569; }}
+[class*="st-key-sev-"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-med-"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-med-"][class*="-check"] {{ background: #FFF8EB; border: 1px solid #F5C99B !important; }}
+[class*="st-key-agebox"], [class*="st-key-pharm"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-newmed"] {{ background: #2563EB; border: 0 !important; }}
+[class*="st-key-newmed"] h4, [class*="st-key-newmed"] [data-testid="stWidgetLabel"] p {{ color: #FFFFFF !important; }}
+[data-testid="stFileUploaderDropzone"] {{ border: 2px dashed #BFD0F8; background: #F8FAFF; }}
 </style>""",
         unsafe_allow_html=True,
     )
 
 
 def disclaimer() -> None:
-    st.caption(DISCLAIMER)
+    st.caption(DISCLAIMER + " If you have urgent symptoms, call emergency services (911 in the US).")
 
 
 def mock_banner(report: Report | None = None) -> None:
@@ -117,11 +141,25 @@ def list_signature(meds: list[Medication], age: int | None) -> tuple:
     return tuple((m.name, m.strength, m.directions) for m in meds), age
 
 
+def match_badge(m: Medication) -> str:
+    """Whether RxNorm matched the name: a real lookup, not a made-up confidence score."""
+    if m.ingredients or m.generic_name:
+        return f'<span class="pw-badge">Matched: {", ".join(m.ingredients) or m.generic_name}</span>'
+    return '<span class="pw-badge pw-badge-check">Please check this name</span>'
+
+
 # --- sentences built from findings (restate, never re-rate) ----------------------------
 
 
 def _names(f: Finding, joiner: str) -> str:
     return joiner.join(f.drugs)
+
+
+def short_title(f: Finding) -> str:
+    """'Ibuprofen + warfarin' for interactions; the checker's own title otherwise."""
+    if f.kind == "interaction" and len(f.drugs) == 2:
+        return " + ".join(d.capitalize() for d in f.drugs)
+    return f.title
 
 
 def verdict(report: Report) -> tuple[str | None, str, str]:
@@ -137,15 +175,13 @@ def verdict(report: Report) -> tuple[str | None, str, str]:
     pair = _names(top, " with ")
     both = _names(top, " and ")
     head = {
-        "major": f"Ask your pharmacist about {pair} before your next dose.",
+        "major": f"Ask your pharmacist before taking {pair}.",
         "moderate": f"Ask your pharmacist about {pair} soon.",
         "caution": f"Ask your pharmacist whether {both} is still right for you.",
         "minor": f"Mention {pair} to your pharmacist at your next visit.",
         "unknown": f"Ask your pharmacist about {pair} at your next visit.",
     }[top.severity]
-    n = len(fs)
-    sub = f"We found {n} thing{'s' if n != 1 else ''} to talk about. Do not stop or change any medicine on your own."
-    return top.severity, head, sub
+    return top.severity, head, "Don’t stop any medicine on your own."
 
 
 def questions(report: Report) -> list[tuple[str, str]]:
@@ -155,9 +191,9 @@ def questions(report: Report) -> list[tuple[str, str]]:
         d = f.drugs
         if f.kind == "interaction" and len(d) == 2:
             q = {
-                "major": f"Is it OK for me to take {d[0]} and {d[1]} together?",
-                "moderate": f"Does taking {d[0]} with {d[1]} need any extra checks?",
-                "unknown": f"{d[0].capitalize()} and {d[1]} are listed together. Is that something to watch?",
+                "major": f"Is {d[0]} OK with my {d[1]}?",
+                "moderate": f"Do I need extra checks for {d[0]} with {d[1]}?",
+                "unknown": f"{d[0].capitalize()} and {d[1]} are listed together. Should I watch for anything?",
             }.get(f.severity, f"Is the mix of {d[0]} and {d[1]} something to watch?")
         elif f.kind == "older_adult_risk":
             q = f"At my age, is {_names(f, ' and ')} still right for me?"
@@ -207,7 +243,7 @@ def verdict_banner(report: Report) -> None:
         svg = icon(sev, 40) if sev else ""
         st.markdown(
             f'<div class="pw-verdict"><span class="{ink}">{svg}</span>'
-            f'<div><h2 class="{ink}">{head}</h2><p style="margin:.4rem 0 0">{sub}</p></div></div>',
+            f'<div><h2 class="{ink}">{head}</h2><p style="margin:.3rem 0 0">{sub}</p></div></div>',
             unsafe_allow_html=True,
         )
         counts: dict[str, int] = {}
@@ -224,12 +260,12 @@ def finding_card(f: Finding, where: str = "main") -> None:
     label = SEVERITY_STYLE[f.severity][0]
     with st.container(border=True, key=f"sev-{f.severity}-{where}-{f.id}"):
         st.markdown(
-            f'<div class="pw-band pw-band-{f.severity}">{icon(f.severity, 20)}{label}</div>', unsafe_allow_html=True
+            f'<div class="pw-sev pw-ink-{f.severity}">{icon(f.severity, 18)}{label}</div>', unsafe_allow_html=True
         )
-        st.markdown(f"#### {f.title}")
+        st.markdown(f"#### {short_title(f)}")
         st.write(f.plain_summary)
         st.markdown(f"**What to do:** {f.what_to_do}")
-        with st.expander("Where this comes from", expanded=f.severity == "major"):
+        with st.expander("Sources", expanded=False):
             for ev in f.evidence:
                 link = f" · [open source]({ev.url})" if ev.url else ""
                 st.markdown(
@@ -240,33 +276,58 @@ def finding_card(f: Finding, where: str = "main") -> None:
 
 
 def connections_box(report: Report) -> None:
-    pairs = connections(report)
+    """Matrix of the person's medicines (design v2); a list when there are too many to fit."""
     with st.container(border=True):
-        st.markdown("#### How your medicines connect")
-        if not pairs:
+        st.markdown("#### How they connect")
+        meds = [m for m in report.meds if m.match_names]
+        pair_sev = {frozenset((a, b)): s for a, b, s in connections(report)}
+        if not pair_sev:
             st.caption("No interactions between your medicines were found in our sources.")
             return
-        rows = "".join(
-            f'<div class="pw-pair pw-band-{s}"><span>{a.capitalize()} + {b.capitalize()}</span>'
-            f"<strong>{SEVERITY_STYLE[s][0]}</strong></div>"
-            for a, b, s in pairs
-        )
-        st.markdown(rows, unsafe_allow_html=True)
+
+        def sev(i: int, j: int) -> str | None:
+            for a in meds[i].match_names:
+                for b in meds[j].match_names:
+                    if frozenset((a, b)) in pair_sev:
+                        return pair_sev[frozenset((a, b))]
+            return None
+
+        if len(meds) <= 5:
+            cols = f"grid-template-columns: 1.4fr repeat({len(meds)}, minmax(0, 1fr))"
+            cells = ['<span class="h"></span>'] + [f'<span class="h">{m.name[:5]}.</span>' for m in meds]
+            for i, m in enumerate(meds):
+                cells.append(f'<span class="r">{m.name}</span>')
+                for j in range(len(meds)):
+                    s = sev(i, j) if i != j else None
+                    short = (
+                        {"Important": "Imp.", "Not rated": "?"}.get(SEVERITY_STYLE[s][0], SEVERITY_STYLE[s][0])
+                        if s
+                        else ""
+                    )
+                    cells.append(f'<span class="pw-cell-{s}">{short}</span>' if s else '<span class="e"></span>')
+            st.markdown(
+                f'<div class="pw-matrix" style="{cols}" role="table" aria-label="Interactions between your medicines">'
+                + "".join(cells)
+                + "</div>",
+                unsafe_allow_html=True,
+            )
+            st.caption("? = listed together, not rated. Empty = nothing found in our sources.")
+        else:
+            for a, b, s in connections(report):
+                st.markdown(f"{a.capitalize()} + {b.capitalize()}: **{SEVERITY_STYLE[s][0]}**")
 
 
 def checked_as(report: Report) -> None:
     """What each bottle name was checked as (e.g. Advil -> ibuprofen); normalization runs after confirm."""
-    with st.container(border=True):
-        st.markdown("#### What we checked")
-        st.caption("Each name is matched to its active ingredient. If one looks wrong, fix the name above.")
-        st.markdown(
-            "\n".join(
-                f"- {m.name} → {', '.join(m.ingredients) or m.generic_name}"
-                if (m.ingredients or m.generic_name)
-                else f"- {m.name} → *not matched (see “could not check”)*"
-                for m in report.meds
-            )
+    st.caption(
+        "What we checked: "
+        + "; ".join(
+            f"{m.name} → {', '.join(m.ingredients) or m.generic_name}"
+            if (m.ingredients or m.generic_name)
+            else f"{m.name} → not matched"
+            for m in report.meds
         )
+    )
 
 
 def _unchecked_names(report: Report) -> list[str]:
@@ -296,35 +357,35 @@ def _group_quotes(notes: list[GroupNote]) -> None:
             continue
         st.markdown(f"**{label}**")
         for n in mine:
-            link = f" · [open]({n.evidence.url})" if n.evidence.url else ""
             st.markdown(f'<p class="pw-quote">“{n.quote}”</p>', unsafe_allow_html=True)
+        link = f" · [open]({mine[0].evidence.url})" if mine[0].evidence.url else ""
         st.markdown(f'<span class="pw-src">FDA label · {mine[0].evidence.version}</span>{link}', unsafe_allow_html=True)
 
 
-def pill_card(c: PillCard, med: Medication | None, report: Report) -> None:
+def medicine_detail(c: PillCard, med: Medication | None, report: Report) -> None:
+    """Tap a medicine: what it's for, how to take it (copied), cautions, with your other pills, label quotes."""
     names = set(med.match_names) if med else {c.med_key}
-    with st.container(border=True):
-        strength = f" {med.strength}" if med and med.strength else ""
-        st.markdown(f"#### {c.name}{strength}")
-        st.markdown(f"**For:** {c.what_it_is_for}")
+    strength = f" {med.strength}" if med and med.strength else ""
+    with st.expander(f"{c.name}{strength}"):
+        st.markdown(f"**What it’s for:** {c.what_it_is_for}")
         st.markdown(
             f"**How to take, from your label:** {c.how_to_take}"
             if c.how_to_take
             else f"**How to take:** {NO_DIRECTIONS}"
         )
         if c.watch_for:
-            st.markdown("**Watch for:**\n" + "\n".join(f"- {w}" for w in c.watch_for))
-        chips = "".join(
-            f'<span class="pw-chip pw-chip-{f.severity}">{SEVERITY_STYLE[f.severity][0]} with '
+            st.markdown("**Caution:**\n" + "\n".join(f"- {w}" for w in c.watch_for))
+        others = [
+            f'<span class="pw-chip pw-cell-{f.severity}">{SEVERITY_STYLE[f.severity][0]} with '
             f"{', '.join(d for d in f.drugs if d not in names)}</span>"
             for f in report.sorted_findings()
             if f.kind == "interaction" and names & set(f.drugs)
-        )
-        if chips:
-            st.markdown(chips, unsafe_allow_html=True)
+        ]
+        if others:
+            st.markdown("**With your other pills:** " + "".join(others), unsafe_allow_html=True)
         if c.special_groups:
-            with st.expander("Pregnancy, breastfeeding, children: what the label says"):
-                _group_quotes(c.special_groups)
+            st.markdown("**Pregnancy, breastfeeding, children: what the label says**")
+            _group_quotes(c.special_groups)
 
 
 def trust_panel(report: Report, audit_events: list[AuditEvent] | None = None) -> None:
