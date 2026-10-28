@@ -25,10 +25,12 @@ Confirmed against RxNorm on 2026-10-28. `ingredients` are lower-case RxNorm IN n
 | Oxybutynin chloride 5 mg | `oxybutynin` |
 | Lisinopril 10 mg | `lisinopril` |
 
+- A12 `data/cache/` warmed for the 3 scenarios with gpt-4.1 / gpt-4.1-mini and committed (rxnorm 14, openfda 7, llm 24 files, 224 KB). `PILLWISE_MOCK=0 PILLWISE_OFFLINE=1 make scenarios-real` passes.
+- Live photo test on B's 5 photos (7 medicines): names and directions correct; directions null when cut off or absent. Pharmacy abbreviations (APAP, HCTZ, HYDROCO, SOD...) expanded by a fixed table before RxNorm. openFDA quotes retried once when not verbatim.
+- CP1 integration with B done (`integration/1249` → main, tag `cp1`): all 3 scenarios pass in real mode.
+
 ## Stubbed or still mock
-- Orchestrator tests run on a local copy of `mock_check_result` (B's real checkers come in at CP2).
 - `explain.simplify`, `explain.make_quiz`, `agents/clinic.py`: not started (stretch).
-- Not yet run live against OpenAI (no key on this machine yet).
 
 ## How to run / verify my part
 ```bash
@@ -39,15 +41,12 @@ PILLWISE_MOCK=0 make scenarios-real
 ```
 
 ## Env vars or data my part needs
-- `OPENAI_API_KEY` (read by the OpenAI SDK itself).
+- `OPENAI_API_KEY` (via `config.openai_api_key`).
 - `PILLWISE_MODEL_MAIN=<vision-capable OpenAI model>` and `PILLWISE_MODEL_FAST=<cheap OpenAI model>`. The defaults in `config.py` are Claude names and are rejected with a clear error.
 - `OPENFDA_API_KEY` optional.
 
 ## Needs from others
-- **main (contract, additive):**
-  - add `openai_api_key` (and optionally `llm_provider`) to `config.py`, and update `.env.example` defaults to OpenAI models.
-  - add `mocks.mock_check_result()` (docs/PARALLEL_AB.md §2).
-  - `data/cache/` and `tests/fixtures/pipeline/` go to A in the ownership table.
+- main: done (contract commit `a74c428`).
 - **B:** match on the drug-name list above. Add a test that each name is in the DDInter DB.
 - **C:**
   - On the Home confirm table, add a hint: "Check each name against the bottle." A look-alike misread (e.g. Hydroxyzine read as Hydralazine) is a valid drug name, so normalize cannot catch it; only the person can.
@@ -57,4 +56,5 @@ PILLWISE_MOCK=0 make scenarios-real
 - Normalize takes RxNorm's top candidate with no score threshold, on purpose. Tested 2026-10-28: misspellings (Lisinoprl, Warfrin, Celebrx, Zyrtek) score ~8 and still map to the right ingredient, while correct names score ~12. A threshold would turn these into "could not check". The real risk is a look-alike misread of another real drug, which scores high; see the C requests above. Optional A follow-up: flag low-score matches in the report ("we read Warfrin as warfarin").
 - openFDA label choice can change over time when online. Warming `data/cache/` (A12) and committing it freezes it for the demo.
 - The warfarin label's interaction text names "drugs that increase bleeding risk", not ibuprofen by name; the quote may be class-level.
-- `PILLWISE_OFFLINE=1` also makes LLM text calls cache-only, so the demo needs the cache warmed with the same models.
+- `PILLWISE_OFFLINE=1` also makes LLM text calls cache-only. Re-warm `data/cache/` after any prompt or model change (`rm -rf data/cache/llm && PILLWISE_MOCK=0 make scenarios-real`).
+- Live photo reading needs network (image calls are never cached).
