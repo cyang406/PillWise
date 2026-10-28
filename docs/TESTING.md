@@ -53,7 +53,7 @@ Start the app in real offline mode (`make app` with the variables above) and ope
 | 3 | Try a sample → Warfarin nsaid | 3 medicine rows, all ticked, age 72 |
 | 4 | Untick one row | Orange row and "Please check" reminder |
 | 5 | Check my list | Verdict "Ask your pharmacist before taking ibuprofen with warfarin."; red Serious card |
-| 6 | Open "Where this comes from" on the red card | DDInter record + FDA quote in quotation marks + DailyMed link that opens |
+| 6 | Open "Sources" on the red card | DDInter record + FDA quote in quotation marks + DailyMed link that opens |
 | 7 | Remove a row | Results disappear: "Your list changed since the last check" |
 | 8 | Type "Mysterol", Check my list | Red box "We could not check: Mysterol … does NOT mean they are safe" |
 | 9 | About each medicine → Warfarin → "Pregnancy, breastfeeding, children" | Exact FDA label sentences with the label date |
