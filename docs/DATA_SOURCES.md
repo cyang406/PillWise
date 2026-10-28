@@ -12,6 +12,23 @@ note and the version shown in `Evidence.version`.
 | Older-adult risk | [2023 AGS Beers Criteria](https://pubmed.ncbi.nlm.nih.gov/37139824/) | hand-coded `data/beers.json` | Copyrighted: our own summaries + citation only | `checks/beers.py` |
 | Synthetic patients (stretch B) | [Synthea](https://synthetichealth.github.io/synthea/) | Java generator | Apache 2.0; synthetic only | `agents/clinic.py` |
 
+## Test photos (`data/photos/`, B9)
+
+Committed on purpose with `git add -f` (the folder is git-ignored by default). All from
+Wikimedia Commons under Creative Commons licenses; attribution below. No personal data:
+names are blacked out in the source or blurred by us.
+
+| File | Shows | Author / source | License | Changes |
+| --- | --- | --- | --- | --- |
+| `bottle_1.png` | Warfarin sodium 5 mg (Rx) | [Walgreens Prescription Bottle](https://commons.wikimedia.org/wiki/File:Walgreens_Prescription_Bottle.jpg) | CC BY-SA 3.0 | none |
+| `bottle_2_blurred.png` | Prednisone 20 mg, amoxicillin 500 mg, hydrocodone/APAP 5-500 | Bart Szyszka via Flickr, [Commons](https://commons.wikimedia.org/wiki/File:ClearRx_prescription_bottles_-_Flickr_-_bartsz.jpg) | CC BY 2.0 | name and address blurred |
+| `bottle_3.png` | Oxycodone 5 mg | Cindy Shebley via Flickr, [Commons](https://commons.wikimedia.org/wiki/File:Oxycodone_Prescription_Bottle_with_Pills_Spilling_Out._(41201105871).jpg) | CC BY 2.0 | none |
+| `bottle_4.png` | Nateglinide 60 mg | Grendelkhan, [Commons](https://commons.wikimedia.org/wiki/File:Nateglinide_60_mg_bottle,_Zydus,_front_view.jpg) | CC BY-SA 4.0 | none |
+| `bottle_5.png` | Jardiance (empagliflozin) 10 mg | Grendelkhan, [Commons](https://commons.wikimedia.org/wiki/File:Jardiance_10mg_bottle,_front_view.jpg) | CC BY-SA 4.0 | none |
+
+Only `bottle_1.png` matches a demo scenario (`warfarin_nsaid`). The others are for testing label reading (A2).
+Still needed for the scenarios: ibuprofen, acetaminophen, diphenhydramine, oxybutynin, lisinopril, loratadine.
+
 ## DDInter download steps
 
 1. Open https://ddinter2.scbdd.com → Download.
