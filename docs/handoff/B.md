@@ -3,6 +3,7 @@
 Owner keeps this current. The integration agent reads it before merging.
 
 ## Done
+- B1 DDInter 2.0: 10 CSVs (codes A,B,D,H,L,M,N,P,R,V) from https://ddinter2.scbdd.com/static/media/download/ddinter_downloads_code_<X>.csv, headers match the loader; `make ddinter` -> 336,075 rows, 215,570 unique pairs, no level conflicts. Golden names all present as plain RxNorm IN names: no name mapping needed.
 - B2 `checks/ddinter.py`: pairwise lookup by `match_names`, DDInter level -> severity, template text, DDInter evidence. Missing DB raises (-> `CheckResult.errors`, "could not check").
 - B4 `checks/beers.py`: single-drug (caution) + combo rules `count_tag` / `pair_tags` (moderate); skipped under 65; "If you are 65 or older" when age unknown.
 - B5 (code) `checks/onc.py`: group_a x group_b pairs -> major; only `verified: true` rules unless `PILLWISE_MOCK=1`.
@@ -11,7 +12,6 @@ Owner keeps this current. The integration agent reads it before merging.
 - B8 tests: `tests/test_checks_{ddinter,beers,onc,registry,audit}.py`, `tests/test_load_golden_names.py` (golden list from `docs/PARALLEL_AB.md`).
 
 ## Stubbed or still mock
-- B1 DDInter CSVs not downloaded yet -> `data/ddinter.sqlite` not built; DDInter checker reports "could not check" until then.
 - B3 / B5 data: every entry in `data/beers.json` and `data/onc_high.json` is still `verified: false`.
   Beers still runs but evidence version says "2023 (unverified seed)"; ONC emits nothing in real mode.
 - DDInter evidence URL is the site root (per-interaction page URL not confirmed).
@@ -32,4 +32,6 @@ pytest tests/test_load_golden_names.py   # must pass (not skip) once the DB exis
 - main: the `contract:` commit from `docs/PARALLEL_AB.md` (B gains `pillwise/synthea.py`) before B writes the synthea stub.
 
 ## Known issues / risks
+- DDInter lists acetaminophen + loratadine (safe_otc scenario) with level Unknown, so the "safe" demo shows one `unknown` interaction card. The scenario still passes (unknown < minor). C may want to style `unknown` softly.
+- DDInter has route variants like `diphenhydramine (topical)`; we match only the plain name.
 - If DDInter spells a name differently from RxNorm IN, findings are silently missed; `test_load_golden_names.py` catches this for scenario drugs once the DB is built.
