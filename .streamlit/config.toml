@@ -1,13 +1,21 @@
-# Owner: C. Streamlit settings for the PillWise UI.
+# Owner: C. Streamlit settings for the PillWise UI (one page; see the design canvas in docs/handoff/C.md).
 
 [theme]
 base = "light"
+# Atkinson Hyperlegible is designed for low-vision readers; falls back to sans-serif offline.
+font = "'Atkinson Hyperlegible':https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+baseFontSize = 17
 # Teal, not Streamlit's default red: red is reserved for "Serious" findings.
-primaryColor = "#0f766e"
+primaryColor = "#0F6B63"
+backgroundColor = "#F5F7F6"
+secondaryBackgroundColor = "#EAF0EE"
+textColor = "#15201E"
+borderColor = "#D9E1DE"
 
 [client]
-# Hide the developer toolbar ("Deploy" etc.) for patients and judges.
+# Hide the developer toolbar ("Deploy" etc.) and the page list (PillWise is one page).
 toolbarMode = "minimal"
+showSidebarNavigation = false
 
 [browser]
 gatherUsageStats = false
