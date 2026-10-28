@@ -101,7 +101,12 @@ def test_llm_failure_keeps_finding(monkeypatch):
 
 @pytest.mark.parametrize(
     "drug,section",
-    [("oxybutynin", "geriatric_use"), ("diphenhydramine", "when_using"), ("ibuprofen", "ask_doctor")],
+    [
+        ("oxybutynin", "geriatric_use"),
+        ("diphenhydramine", "when_using"),
+        ("ibuprofen", "ask_doctor"),
+        ("warfarin", "contraindications"),
+    ],
 )
 def test_older_adult_and_otc_sections_are_kept(drug, section):
     label = evidence.fetch_label([drug])

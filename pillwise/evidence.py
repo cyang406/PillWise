@@ -30,6 +30,7 @@ DAILYMED = "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid={set_id}"
 #: Label sections that can support a safety finding, most specific first.
 EVIDENCE_SECTIONS = (
     "boxed_warning",
+    "contraindications",  # Rx: when it must not be used (97% of Rx labels)
     "drug_interactions",
     "ask_doctor_or_pharmacist",
     "do_not_use",
