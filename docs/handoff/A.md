@@ -33,7 +33,8 @@ Confirmed against RxNorm on 2026-10-28. `ingredients` are lower-case RxNorm IN n
 - A10 `explain.make_quiz`: the LLM writes the question and answers, then code places the correct answer at a stable position. The explanation is the checker's own summary. Questions with the same lesson are asked once, and `unknown` findings are skipped. Any failure or dose-like answer falls back to a fixed question.
 
 ## Stubbed or still mock
-- Translation (A9) not built: English only by team decision. `agents/clinic.py` (A11) not started.
+- Translation (A9) not built: English only by team decision.
+- A11 clinic agents: skipped by team decision (13:30). `synthea.py` has only 2 stub patients; `api.clinic_*` stays on mocks.
 
 ## How to run / verify my part
 ```bash
