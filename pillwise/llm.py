@@ -4,8 +4,7 @@ Everything else calls these helpers, so swapping models or adding tracing is one
 
 Provider: OpenAI (chat completions + structured outputs).
 - Models come from settings.model_main / settings.model_fast (PILLWISE_MODEL_MAIN / _FAST).
-- The API key is read by the OpenAI SDK from OPENAI_API_KEY (see docs/handoff/A.md:
-  contract request to add `openai_api_key` to pillwise.config).
+- The API key comes from settings.openai_api_key (OPENAI_API_KEY).
 
 Text-only calls are cached under settings.cache_dir/llm/ so the stage demo works with
 PILLWISE_OFFLINE=1. Calls with an image are NEVER cached (privacy: no photos or label
@@ -44,7 +43,10 @@ class LLMError(RuntimeError):
 def _client():
     from openai import OpenAI
 
-    return OpenAI()  # reads OPENAI_API_KEY from the environment
+    key = get_settings().openai_api_key
+    if not key:
+        raise LLMError("OPENAI_API_KEY is not set (.env)")
+    return OpenAI(api_key=key)
 
 
 def _model(fast: bool) -> str:

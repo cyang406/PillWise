@@ -25,9 +25,10 @@ names are blacked out in the source or blurred by us.
 | `bottle_3.png` | Oxycodone 5 mg | Cindy Shebley via Flickr, [Commons](https://commons.wikimedia.org/wiki/File:Oxycodone_Prescription_Bottle_with_Pills_Spilling_Out._(41201105871).jpg) | CC BY 2.0 | none |
 | `bottle_4.png` | Nateglinide 60 mg | Grendelkhan, [Commons](https://commons.wikimedia.org/wiki/File:Nateglinide_60_mg_bottle,_Zydus,_front_view.jpg) | CC BY-SA 4.0 | none |
 | `bottle_5.png` | Jardiance (empagliflozin) 10 mg | Grendelkhan, [Commons](https://commons.wikimedia.org/wiki/File:Jardiance_10mg_bottle,_front_view.jpg) | CC BY-SA 4.0 | none |
+| `bottle_7.png` | Ibuprofen 200 mg (Safeway generic, OTC) | Wikimedia Commons (Safeway generic ibuprofen) | CC0 | none |
 
-Only `bottle_1.png` matches a demo scenario (`warfarin_nsaid`). The others are for testing label reading (A2).
-Still needed for the scenarios: ibuprofen, acetaminophen, diphenhydramine, oxybutynin, lisinopril, loratadine.
+`bottle_1.png` (warfarin) + `bottle_7.png` (ibuprofen) cover the main demo scenario (`warfarin_nsaid`). The others are for testing label reading (A2).
+Optional, not found yet: acetaminophen, diphenhydramine, oxybutynin, lisinopril, loratadine (the scenarios work without photos).
 
 ## DDInter download steps
 

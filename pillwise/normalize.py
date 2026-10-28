@@ -15,6 +15,7 @@ On any failure the medicine keeps what it already had (e.g. scenario ingredients
 from __future__ import annotations
 
 import logging
+import re
 
 from pillwise import http_cache
 from pillwise.schemas import Medication
@@ -22,6 +23,32 @@ from pillwise.schemas import Medication
 log = logging.getLogger(__name__)
 
 RXNAV = "https://rxnav.nlm.nih.gov/REST"
+
+#: Common pharmacy-label abbreviations RxNorm does not understand (whole words only).
+#: Fixed table on purpose: no LLM guesses at drug names. Add only unambiguous ones.
+ABBREVIATIONS = {
+    "apap": "acetaminophen",
+    "asa": "aspirin",
+    "hctz": "hydrochlorothiazide",
+    "hydroco": "hydrocodone",
+    "hydrocod": "hydrocodone",
+    "oxycod": "oxycodone",
+    "smx": "sulfamethoxazole",
+    "tmp": "trimethoprim",
+    "mtx": "methotrexate",
+    "ntg": "nitroglycerin",
+    "dph": "diphenhydramine",
+    "sod": "sodium",
+}
+_ABBREV_RE = re.compile(r"\b(" + "|".join(ABBREVIATIONS) + r")\b", re.IGNORECASE)
+
+
+def expand_abbreviations(name: str) -> str:
+    """'HYDROCO/APAP 5-500M' -> 'hydrocodone / acetaminophen 5-500M'. Unchanged if no abbreviation."""
+    if not _ABBREV_RE.search(name):
+        return name
+    out = _ABBREV_RE.sub(lambda m: ABBREVIATIONS[m.group(1).lower()], name)
+    return re.sub(r"\s*/\s*", " / ", out)
 
 
 def approximate_rxcui(term: str) -> str | None:
@@ -43,9 +70,12 @@ def ingredients_for(rxcui: str) -> list[str]:
 
 def _terms(med: Medication) -> list[str]:
     terms = []
-    if med.strength:
-        terms.append(f"{med.name} {med.strength}")
-    terms.append(med.name)
+    expanded = expand_abbreviations(med.name)
+    names = [expanded, med.name] if expanded != med.name else [med.name]  # expanded first: more specific
+    for name in names:
+        if med.strength:
+            terms.append(f"{name} {med.strength}")
+        terms.append(name)
     if med.generic_name:
         terms.append(med.generic_name)
     return list(dict.fromkeys(t.strip() for t in terms if t and t.strip()))
