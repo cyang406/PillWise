@@ -97,8 +97,7 @@ html {{ font-size: {"19px" if large_text else "16px"}; }}
 .pw-quote {{ margin: 0 0 .6rem; padding-left: .75rem; border-left: 3px solid #C5D1CD; color: #2E3B38; }}
 .pw-src {{ font-size: .8rem; color: #4A5754; }}
 [class*="st-key-med-"][class*="-check"] {{ border: 2px solid #B54708 !important; background: #FFF8F1; }}
-[class*="st-key-newmed"] {{ background: #13302C; border-radius: 1rem; }}
-[class*="st-key-newmed"] h2, [class*="st-key-newmed"] p, [class*="st-key-newmed"] label {{ color: #F2F7F5 !important; }}
+[class*="st-key-newmed"] {{ background: #E3F1EE; border-color: #A9D3CB !important; }}
 </style>""",
         unsafe_allow_html=True,
     )

@@ -19,7 +19,7 @@ HOME = str(APP / "Home.py")
 
 def text_of(at: AppTest) -> str:
     parts = [*at.markdown, *at.error, *at.caption, *at.success, *at.warning, *at.info, *at.header, *at.subheader]
-    return " ".join(str(m.value) for m in parts) + " " + " ".join(c.label for c in at.checkbox)
+    return " ".join(str(m.value) for m in parts) + " " + " ".join(c.label for c in at.checkbox)  # medicine rows
 
 
 def headers(at: AppTest) -> list[str]:

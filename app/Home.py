@@ -202,9 +202,14 @@ with st.container(border=True):
     q_col, s_col = st.columns([1.2, 1], gap="large")
     with q_col:
         st.markdown("#### Questions to ask")
-        st.caption("Tick each one once you have asked it.")
-        for i, (sev, q) in enumerate(questions(report)):
-            st.checkbox(f"{q}  ·  *{SEVERITY_STYLE[sev][0]}*", key=f"q_{report.id}_{i}")
+        st.caption("Most important first. Show this list, or download it below.")
+        st.markdown(
+            "\n".join(
+                f'{i}. {q} <span class="pw-chip pw-chip-{sev}">{SEVERITY_STYLE[sev][0]}</span>'
+                for i, (sev, q) in enumerate(questions(report), start=1)
+            ),
+            unsafe_allow_html=True,
+        )
         if not report.findings:
             st.markdown("- Is there anything on my list I should keep an eye on?")
     with s_col:
