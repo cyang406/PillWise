@@ -8,7 +8,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from components import disclaimer
+from components import disclaimer, in_mobile_app
 from pillwise import api
 from pillwise.config import get_settings
 from pillwise.schemas import Medication, PatientContext
@@ -34,9 +34,14 @@ def set_meds(meds: list[Medication]) -> None:
 
 # --- 1. Capture -----------------------------------------------------------------
 st.subheader("1. Add your medicines")
-tab_photo, tab_upload, tab_demo = st.tabs(["Take a photo", "Upload", "Demo scenario"])
-with tab_photo:
-    shot = st.camera_input("Point the camera at the bottle label")
+# The in-page camera is for the mobile app only; on the web, "Upload" covers photos (phones offer the camera there).
+shot = None
+if in_mobile_app():
+    tab_photo, tab_upload, tab_demo = st.tabs(["Take a photo", "Upload", "Demo scenario"])
+    with tab_photo:
+        shot = st.camera_input("Point the camera at the bottle label")
+else:
+    tab_upload, tab_demo = st.tabs(["Upload a photo", "Demo scenario"])
 with tab_upload:
     upload = st.file_uploader("Bottle photo", type=["jpg", "jpeg", "png", "webp"])
 with tab_demo:

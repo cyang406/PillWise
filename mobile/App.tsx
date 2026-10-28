@@ -84,6 +84,8 @@ function PillWiseWeb() {
       key={attempt}
       ref={web}
       source={{ uri: PILLWISE_URL }}
+      // The web app shows its in-page camera tab only when it sees this (app/components.py: in_mobile_app).
+      applicationNameForUserAgent="PillWiseMobile/1.0"
       style={styles.root}
       // Privacy (safety rule 6): no cookies, cache or storage kept between sessions.
       incognito

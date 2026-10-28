@@ -44,6 +44,21 @@ def inject_css() -> None:
     )
 
 
+MOBILE_APP_UA = "PillWiseMobile"  # mobile/App.tsx appends this to the WebView's User-Agent
+
+
+def in_mobile_app() -> bool:
+    """True inside the PillWise mobile app (User-Agent), or with ?app=mobile to try its layout in a browser."""
+    ss = st.session_state
+    if st.query_params.get("app") == "mobile":
+        ss.mobile_app = True  # remembered for the session; page links drop the query string
+    try:
+        user_agent = st.context.headers.get("User-Agent", "")
+    except Exception:  # no request context (e.g. AppTest)
+        user_agent = ""
+    return MOBILE_APP_UA in user_agent or ss.get("mobile_app", False)
+
+
 def disclaimer() -> None:
     st.info(DISCLAIMER)
 

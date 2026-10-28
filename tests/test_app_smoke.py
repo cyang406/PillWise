@@ -162,3 +162,17 @@ def test_summary_calls_llm_once_per_report(mock_mode, monkeypatch):
     at = summary_page(report)
     at.run(timeout=30)  # a rerun (e.g. a quiz click) must not call the LLM again
     assert calls == ["en"]
+
+
+def test_web_has_no_camera_tab(mock_mode):
+    at = AppTest.from_file(str(APP / "Home.py")).run(timeout=30)
+    assert [t.label for t in at.tabs] == ["Upload a photo", "Demo scenario"]
+    assert not at.get("camera_input")
+
+
+def test_mobile_app_gets_camera_tab(mock_mode):
+    at = AppTest.from_file(str(APP / "Home.py"))
+    at.query_params["app"] = "mobile"
+    at.run(timeout=30)
+    assert [t.label for t in at.tabs] == ["Take a photo", "Upload", "Demo scenario"]
+    assert at.get("camera_input")
