@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "openfda": {
+      "command": "npx",
+      "args": ["-y", "@cyanheads/openfda-mcp-server@0.8.1"],
+      "env": {
+        "MCP_TRANSPORT_TYPE": "stdio",
+        "OPENFDA_API_KEY": "${OPENFDA_API_KEY:-}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@4.4.1"]
+    },
+    "kaggle": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@0.14.3", "https://www.kaggle.com/mcp"]
+    },
+    "huggingface": {
+      "type": "http",
+      "url": "https://huggingface.co/mcp"
+    }
+  }
+}
