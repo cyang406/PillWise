@@ -1,0 +1,69 @@
+{
+  "_note": "Ground truth for scripts/eval_label_reading.py: what is printed on each committed photo in data/photos/. directions null = no complete directions printed or readable (front of an OTC box, cut off, or a caution sticker). bottle_3/4/5 were added after the prompt was written (held out).",
+  "bottle_1.png": [
+    {
+      "name": "warfarin",
+      "strength": "5 mg",
+      "directions": "TAKE 1 TABLET BY MOUTH EVERY DAY"
+    }
+  ],
+  "bottle_7.png": [
+    {
+      "name": "ibuprofen",
+      "strength": "200 mg",
+      "directions": null
+    }
+  ],
+  "bottle_2_blurred.png": [
+    {
+      "name": "prednisone",
+      "strength": "20 mg",
+      "directions": "Take one tablet by mouth one time daily"
+    },
+    {
+      "name": "amoxicillin",
+      "strength": "500 mg",
+      "directions": null
+    },
+    {
+      "name": "hydroco",
+      "strength": "5-500",
+      "directions": null
+    }
+  ],
+  "gen_ibuprofen_200mg.png": [
+    {
+      "name": "ibuprofen",
+      "strength": "200 mg",
+      "directions": "TAKE 1 TABLET BY MOUTH EVERY 6 HOURS AS NEEDED FOR PAIN OR FEVER"
+    }
+  ],
+  "gen_acetaminophen_500mg.png": [
+    {
+      "name": "acetaminophen",
+      "strength": "500 mg",
+      "directions": "TAKE 1 TABLET BY MOUTH EVERY 6 HOURS AS NEEDED FOR PAIN OR FEVER"
+    }
+  ],
+  "bottle_3.png": [
+    {
+      "name": "oxycodone",
+      "strength": "5",
+      "directions": null
+    }
+  ],
+  "bottle_4.png": [
+    {
+      "name": "nateglinide",
+      "strength": "60 mg",
+      "directions": null
+    }
+  ],
+  "bottle_5.png": [
+    {
+      "name": "jardiance",
+      "strength": "10 mg",
+      "directions": null
+    }
+  ]
+}

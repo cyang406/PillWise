@@ -32,9 +32,10 @@ Live photo reading still needs network and `OPENAI_API_KEY`; if the network fail
   every warning, and says "we couldn't check this" instead of guessing.
 - **Privacy?** The safety checks never need your name, so they run locally. Only label reading and
   plain-language rewriting use a model, and photos are never stored or cached.
-- **Could it run on a local model?** We tested Qwen3-VL 8B on our bottle photos: it read every name,
-  but it sometimes copied other label text as "directions". That is exactly why a person confirms the
-  list and why directions are only ever copied, never generated. A local model is on the roadmap.
+- **Could it run on a local model?** We measured it (`scripts/eval_label_reading.py`): Qwen3-VL 8B on a
+  laptop read 10 of 10 names and strengths in about 5 seconds a photo, but on one cut-off label it joined
+  two fragments into a direction. That is exactly why a person confirms the list and why directions are
+  only ever copied, never generated. A local model is on the roadmap.
 
 ## Checklist for Thursday
 
