@@ -61,7 +61,7 @@ Start the app in real offline mode (`make app` with the variables above) and ope
 | 11 | "Thinking of buying something new?" → Aleve | Aleve → naproxen; Serious with warfarin (works offline too: cached) |
 | 12 | "Sources and audit trail" | Data versions, FDA labels, audit entries for this report |
 | 13 | Turn Wi-Fi off (`PILLWISE_OFFLINE=1`), repeat 3 to 6 | Same results |
-| 14 | Online with `OPENAI_API_KEY`: upload `bottle_1.png` and `gen_ibuprofen_200mg.png` together | Both read; directions copied exactly |
+| 14 | Online with `OPENAI_API_KEY`: select `bottle_1.png`, `gen_ibuprofen_200mg.png`, a copy of `bottle_1.png` and a blank image together | Read in parallel (about 4 s); 2 rows, directions copied exactly; "Already on your list" for the copy; "could not read" for the blank, still shown after the next click |
 
 ## 5. On a phone
 

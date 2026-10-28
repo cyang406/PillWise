@@ -6,6 +6,7 @@ Run:  streamlit run app/Home.py
 from __future__ import annotations
 
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 import streamlit as st
 
@@ -47,17 +48,59 @@ def add_meds(meds: list[Medication], ok: bool = False) -> None:
     ss["items"] = ss["items"] + [{"id": uuid.uuid4().hex[:8], "med": m, "ok": ok} for m in meds]
 
 
-def read_photo(f) -> None:
-    if f.file_id in ss.read_ids:
+def _same_med(m: Medication) -> tuple[str, str]:
+    return m.name.strip().lower(), (m.strength or "").replace(" ", "").lower()
+
+
+def _read_one(blob: tuple[bytes, str]) -> list[Medication]:
+    try:
+        return api.read_bottle(*blob)
+    except Exception:  # noqa: BLE001 - one bad photo must not stop the others
+        return []
+
+
+def read_photos(files: list) -> None:
+    """Read every new photo at once (in parallel), add what was found, skip bottles already on the list."""
+    new = [f for f in files if f is not None and f.file_id not in ss.read_ids]
+    if not new:
         return
-    with st.spinner(f"Reading {f.name or 'the label'}..."):
-        found = api.read_bottle(f.getvalue(), f.type or "image/jpeg")
-    if found:
-        ss.read_ids.add(f.file_id)
-        add_meds(found)
-        st.toast(f"Found {len(found)} medicine(s) on {f.name or 'the photo'}. Check them below.")
-    else:
-        st.warning(f"We could not read a medicine on {f.name or 'this photo'}. Type it in, or try a clearer photo.")
+    # Each photo is tried once; a failed one stays failed until it is removed and added again (no repeat API calls).
+    ss.read_ids.update(f.file_id for f in new)
+    blobs = [(f.getvalue(), f.type or "image/jpeg") for f in new]
+    with st.spinner(f"Reading {len(new)} photo{'s' if len(new) > 1 else ''}..."):
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            results = list(pool.map(_read_one, blobs))
+    have = {_same_med(it["med"]) for it in ss["items"]}
+    added, dupes, failed = [], [], []
+    for f, found in zip(new, results, strict=True):
+        if not found:
+            failed.append(f.name or "a photo")
+        for m in found:
+            (dupes if _same_med(m) in have else added).append(m)
+            have.add(_same_med(m))
+    add_meds(added)
+    if added:
+        st.toast(f"Found {len(added)} medicine(s) on {len(new)} photo(s). Check them below.")
+    # Shown until the next photos are read, so a failed photo is not missed after the page reruns.
+    ss.photo_notes = []
+    if dupes:
+        ss.photo_notes.append(
+            ("info", "Already on your list, so not added again: " + ", ".join(m.name for m in dupes) + ".")
+        )
+    if failed:
+        ss.photo_notes.append(
+            (
+                "warning",
+                "We could not read a medicine on: "
+                + ", ".join(failed)
+                + ". Type it in, or remove the photo and try a clearer one.",
+            )
+        )
+
+
+def photo_notes() -> None:
+    for kind, text in ss.get("photo_notes", []):
+        (st.info if kind == "info" else st.warning)(text)
 
 
 # --- top bar ---------------------------------------------------------------------------
@@ -86,12 +129,14 @@ with st.container(border=True):
     if in_mobile_app():
         shot = st.camera_input("Take a photo of a bottle label")
         if shot is not None:
-            read_photo(shot)
+            read_photos([shot])
     photos = st.file_uploader(
-        "Add bottle photos (you can choose several)", type=["jpg", "jpeg", "png", "webp"], accept_multiple_files=True
+        "Add bottle photos: select several at once (⌘ or Ctrl + click), or drag them all here",
+        type=["jpg", "jpeg", "png", "webp"],
+        accept_multiple_files=True,
     )
-    for f in photos or []:
-        read_photo(f)
+    read_photos(photos or [])
+    photo_notes()
 
     add_l, add_r = st.columns(2)
     with add_l, st.popover("Type a medicine", icon=":material/edit:", width="stretch"):
