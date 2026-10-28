@@ -16,9 +16,9 @@ the MVP goes first and gets pushed for the next integration. Judging is in perso
   - Style `unknown` softly (B: safe_otc shows one DDInter "Unknown" card).
   - "What we checked": bottle name → generic name, e.g. "Advil → ibuprofen" (A request).
   - Pill card always shows the how-to-take line, with A's fixed text when `how_to_take` is empty.
-- [ ] C3 Trust panel: data versions + sources per finding; audit events once `api.recent_audit_events()` exists.
-- [ ] C4 Layout usable at phone width (390 px); `.streamlit/config.toml`. Base for C13.
-- [ ] C5 Tests `tests/test_app_*.py` (AppTest, mock and real+offline): scenario → confirm → results,
+- [x] C3 Trust panel: data versions + sources per finding; audit events once `api.recent_audit_events()` exists.
+- [x] C4 Layout usable at phone width (390 px); `.streamlit/config.toml`. Base for C13.
+- [x] C5 Tests `tests/test_app_*.py` (AppTest, mock and real+offline): scenario → confirm → results,
   unreadable photo, unchecked box, missing directions.
 
 **2. After the MVP (to ~17:00), in this order**
@@ -69,7 +69,9 @@ Native screens would mean a second copy that could drift from it, plus a new HTT
 ## Done
 - C1 Home: name-check hint, unreadable-photo message, same photo never added twice, editor resets when the list is replaced, empty rows ignored, "Start over"; `use_container_width` replaced.
 - C2 Results: "could not check" box first (checker errors shown separately), count line by severity, severity color bar per card (`st-key-sev-*` CSS), `unknown` shown as "Not rated" and faded, openFDA quotes in quotation marks, pill card always shows how-to-take (A's fixed text when missing), "What we checked" (name -> ingredients).
-- Tests: `tests/test_app_smoke.py` opens Results via Home + `switch_page` (page links need Home as main script); 6 tests.
+- C3 Trust panel ("Sources and audit trail" on Results): data versions with readable names, every quoted FDA label (DailyMed link), report id, time and model. Shows the audit log for this report automatically once `api.recent_audit_events` exists (see Needs).
+- C4 `.streamlit/config.toml`: teal primary color (red is reserved for "Serious"), developer toolbar hidden, 25 MB upload limit. Confirm-table column widths keep directions visible at 390 px. Checked with Playwright screenshots at 390 px and 1280 px.
+- C5 `tests/test_app_smoke.py` (14 tests): Home renders with the name-check hint; scenario -> confirm -> report; Start over; unchecked box never says safe; "Not rated"; missing directions; trust panel; Results for all 3 scenarios in real offline mode (skips without `data/ddinter.sqlite`). Results opens via Home + `switch_page` (page links need Home as main script). Not covered: the unreadable-photo message, because AppTest cannot set a camera or upload value.
 
 ## Stubbed or still mock
 - 
@@ -85,7 +87,16 @@ PILLWISE_MOCK=0 PILLWISE_OFFLINE=1 make app   # real pipeline from data/cache (n
 - 
 
 ## Needs from others
-- main: `api.recent_audit_events(limit)` wrapping B's `audit.recent_events` for the trust panel (C3), additive.
+- main: `api.recent_audit_events` for the trust panel (C3), additive. The UI already calls it when present:
+  ```python
+  def recent_audit_events(limit: int = 200) -> list[AuditEvent]:
+      """Newest audit events (B's audit.recent_events); [] in mock mode, where nothing is logged."""
+      if get_settings().mock:
+          return []
+      from pillwise import audit
+
+      return audit.recent_events(limit)
+  ```
 - main (for C13): add `mobile/` to C's row in the CLAUDE.md ownership table; add
   `node_modules/` and `.expo/` to `.gitignore`; add C13–C16 to `docs/TASKS.md`.
 - A: the head-to-head number vs a plain chatbot, if built. B: a FAERS polypharmacy figure for the problem slide.

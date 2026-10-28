@@ -93,3 +93,39 @@ def test_pill_card_without_directions_says_so(mock_mode):
     card = PillCard(med_key="ibuprofen", name="Ibuprofen", what_it_is_for="Pain reliever.", how_to_take=None)
     at = results_page(_report(pill_cards=[card]))
     assert "We could not read directions on your label" in text_of(at)
+
+
+def test_trust_panel_lists_sources_and_labels(mock_mode):
+    label = Evidence(source="openFDA", text="Quote.", version="label 2026-06-29", url="https://dailymed.example/x")
+    report = _report(data_versions={"ddinter": "2.0", "beers": "2023"})
+    report.findings[0].evidence.append(label)
+    text = text_of(results_page(report))
+    assert "DDInter drug-interaction database: version 2.0" in text
+    assert "DailyMed label 2026-06-29" in text
+    assert report.id in text
+
+
+def test_start_over_clears_list(mock_mode):
+    at = AppTest.from_file(str(APP / "Home.py")).run(timeout=30)
+    at.selectbox[0].select("safe_otc").run(timeout=30)
+    button(at, "Load scenario").click().run(timeout=30)
+    button(at, "Start over").click().run(timeout=30)
+    assert at.session_state["meds"] == []
+    assert not [b for b in at.button if b.label == "Start over"]
+
+
+@pytest.mark.parametrize("scenario", api.list_scenarios())
+def test_results_real_offline(real_mode, scenario):
+    """Real pipeline from data/cache (no network); needs B's DDInter DB, like the integrator's smoke test."""
+    from pillwise.config import get_settings
+
+    if not get_settings().ddinter_db.exists():
+        pytest.skip("data/ddinter.sqlite not built (make ddinter)")
+    meds, patient = api.load_scenario(scenario)
+    report = api.check(meds, patient)
+    at = results_page(report)
+    assert not at.exception
+    assert not report.is_mock and "mock mode" not in text_of(at)
+    assert "Some safety checks did not run" not in text_of(at)
+    if scenario == "warfarin_nsaid":
+        assert "Serious" in text_of(at)
