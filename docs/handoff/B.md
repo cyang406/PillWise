@@ -9,6 +9,7 @@ Owner keeps this current. The integration agent reads it before merging.
 - B5 (code) `checks/onc.py`: group_a x group_b pairs -> major; only `verified: true` rules unless `PILLWISE_MOCK=1`.
 - B6 `audit.py`: plain sqlite3 table `audit_events` at `settings.audit_db`; `log_report` / `log_event` / `recent_events` (newest first). Stores no raw_text, photos or age.
 - B7 `checks/__init__.py`: `CheckResult.unmatched` = meds whose names no working checker knows (each checker has `known_names()`).
+- `pillwise/synthea.py` STUB (PARALLEL_AB seam 3): `list_patients(limit)` / `patient_meds(id)` with 2 hard-coded synthetic patients; real data comes with B12. Test: `tests/test_load_synthea.py`.
 - B8 tests: `tests/test_checks_{ddinter,beers,onc,registry,audit}.py`, `tests/test_load_golden_names.py` (golden list from `docs/PARALLEL_AB.md`).
 
 ## Stubbed or still mock
@@ -29,7 +30,7 @@ pytest tests/test_load_golden_names.py   # must pass (not skip) once the DB exis
 
 ## Needs from others
 - A: `normalize` returns lower-case RxNorm IN names (golden list, `docs/PARALLEL_AB.md` seam 1).
-- main: the `contract:` commit from `docs/PARALLEL_AB.md` (B gains `pillwise/synthea.py`) before B writes the synthea stub.
+- main: the `contract:` commit from `docs/PARALLEL_AB.md` (adds `pillwise/synthea.py` to B in the ownership table). Stub already written early, as the plan's timeline says.
 
 ## Known issues / risks
 - DDInter lists acetaminophen + loratadine (safe_otc scenario) with level Unknown, so the "safe" demo shows one `unknown` interaction card. The scenario still passes (unknown < minor). C may want to style `unknown` softly.
