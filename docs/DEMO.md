@@ -29,6 +29,22 @@ Expo Go (see `mobile/README.md`), browser zoom at 125% so text reads on video.
 | 4:10 | Trust + phone | Sources and audit trail; then the phone app: launch disclaimer, Take a photo. | Every claim has a source, a version and an audit entry. Same page on iPhone and Android. |
 | 4:40 | Close | Verdict banner | Rules and data decide; AI only reads and explains. Governed data in, sourced answers out: the pattern Solix applies to enterprise data, pointed at a kitchen table. |
 
+## Phone part of the demo (iPhone)
+
+1. Laptop: `PILLWISE_MOCK=0 uv run --no-project make app` (port 8501).
+2. Phone and laptop on the same network. Venue Wi-Fi often blocks device-to-device traffic: if the phone
+   can't open `http://<laptop IP>:8501` in Safari, turn on the iPhone's Personal Hotspot, join it from the
+   Mac, and use the Mac's new IP (`ipconfig getifaddr en0`).
+3. `cd mobile && npm install && EXPO_PUBLIC_PILLWISE_URL=http://<laptop IP>:8501 npx expo start`, then scan
+   the QR code with the iPhone Camera app (opens in Expo Go).
+4. Taking a picture: use **Add bottle photos → Take Photo** (works over plain http). The in-page
+   "Take a photo" camera needs an HTTPS address (a tunnel); skip it unless one is set up.
+5. Showing it on the recording:
+   - **iPhone Mirroring** (macOS 15+ / iOS 18+): good for tapping through the app with the mouse, but the
+     camera isn't available while mirroring, so pick photos from the library instead.
+   - **To show the live camera**: connect the iPhone by cable, QuickTime Player → File → New Movie
+     Recording → camera menu → your iPhone. This shows the phone screen while you hold and use it.
+
 ## If a judge asks
 
 - **Why not just ChatGPT?** A chatbot's answers can change between runs and can't show where they came from.
