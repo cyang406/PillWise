@@ -51,6 +51,15 @@ PILLWISE_MOCK=0 make scenarios-real
 - **C:**
   - On the Home confirm table, add a hint: "Check each name against the bottle." A look-alike misread (e.g. Hydroxyzine read as Hydralazine) is a valid drug name, so normalize cannot catch it; only the person can.
   - On Results, show what we actually checked, e.g. "Advil → ibuprofen" (`Report.meds[i].name` → `generic_name`). Normalization happens after confirmation, so today the person never sees this mapping.
+  - Pill card with no directions (OTC box front, stock bottle): today `app/components.py:51` hides the line, so the person may not notice. Always show it, with fixed text when `how_to_take` is empty (A never fills directions from the FDA label: wrong-product dosing risk):
+    ```python
+    st.markdown(
+        f"**How to take (from your label):** {c.how_to_take}"
+        if c.how_to_take
+        else "**How to take:** We could not read directions on your label. "
+        "Follow the package directions, or ask your pharmacist."
+    )
+    ```
 
 ## Known issues / risks
 - Normalize takes RxNorm's top candidate with no score threshold, on purpose. Tested 2026-10-28: misspellings (Lisinoprl, Warfrin, Celebrx, Zyrtek) score ~8 and still map to the right ingredient, while correct names score ~12. A threshold would turn these into "could not check". The real risk is a look-alike misread of another real drug, which scores high; see the C requests above. Optional A follow-up: flag low-score matches in the report ("we read Warfrin as warfarin").
