@@ -49,8 +49,12 @@ PILLWISE_MOCK=0 make scenarios-real
   - add `mocks.mock_check_result()` (docs/PARALLEL_AB.md §2).
   - `data/cache/` and `tests/fixtures/pipeline/` go to A in the ownership table.
 - **B:** match on the drug-name list above. Add a test that each name is in the DDInter DB.
+- **C:**
+  - On the Home confirm table, add a hint: "Check each name against the bottle." A look-alike misread (e.g. Hydroxyzine read as Hydralazine) is a valid drug name, so normalize cannot catch it; only the person can.
+  - On Results, show what we actually checked, e.g. "Advil → ibuprofen" (`Report.meds[i].name` → `generic_name`). Normalization happens after confirmation, so today the person never sees this mapping.
 
 ## Known issues / risks
+- Normalize takes RxNorm's top candidate with no score threshold, on purpose. Tested 2026-10-28: misspellings (Lisinoprl, Warfrin, Celebrx, Zyrtek) score ~8 and still map to the right ingredient, while correct names score ~12. A threshold would turn these into "could not check". The real risk is a look-alike misread of another real drug, which scores high; see the C requests above. Optional A follow-up: flag low-score matches in the report ("we read Warfrin as warfarin").
 - openFDA label choice can change over time when online. Warming `data/cache/` (A12) and committing it freezes it for the demo.
 - The warfarin label's interaction text names "drugs that increase bleeding risk", not ibuprofen by name; the quote may be class-level.
 - `PILLWISE_OFFLINE=1` also makes LLM text calls cache-only, so the demo needs the cache warmed with the same models.
