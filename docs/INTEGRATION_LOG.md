@@ -14,6 +14,16 @@ Written by the integration agent (see CLAUDE.md, "Integration protocol"). Newest
 - Contract requests raised:
 - Risks for the demo:
 
+## 13:33 · integration/1333 → main (no tag; cp3 is 16:30)
+- Branch heads merged: b-data `b3d6483` (nothing new), a-pipeline `426c220`. c-ui: still no remote branch.
+- Conflicts: none. Fixes on the integration branch: none.
+- `make check`: pass (119 passed). `make scenarios-real`: 3/3 PASS. Offline: 3/3 PASS.
+- UI smoke (AppTest, real + offline): Results, Summary and Home render for all 3 scenarios plus the unknown-drug case ("could not check" box shown), with no mock banner. Summary grades 3.2 to 5.1.
+- New from A since cp2:
+  - Pill-card "watch for" items split where openFDA lost bullet points; items over 20 words dropped.
+  - Summary rewrites keep medicine names (no drop, no add).
+  - Cache re-warmed after the prompt changes.
+
 ## 13:24 · integration/1324 → main · tag cp2
 - Branch heads merged: b-data `b3d6483`, a-pipeline `f10d3a4`. c-ui: still no remote branch (UI is main's skeleton).
 - Conflicts: none. Fixes on the integration branch: none.
