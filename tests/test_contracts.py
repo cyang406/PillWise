@@ -139,3 +139,11 @@ def test_seed_json_shapes():
 
 def test_mocks_are_marked():
     assert mocks.MOCK_VERSION == "MOCK"
+
+
+def test_mock_check_result_matches_run_all_shape():
+    meds, patient = api.load_scenario("warfarin_nsaid")
+    result = mocks.mock_check_result(meds, patient)
+    assert isinstance(result, CheckResult)
+    assert result.findings and all(f.evidence for f in result.findings)
+    assert result.versions == {"mock": mocks.MOCK_VERSION}

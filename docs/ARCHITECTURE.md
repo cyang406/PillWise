@@ -23,7 +23,7 @@ check ───────► orchestrator.build_report (A)
                  4. explain.pill_cards        (A)  label → plain explanation
                  5. audit.log_report          (B)  source + version per claim
 simplify / quiz ─► explain.py (A)                   stretch A
-clinic_scan / clinic_patient ─► agents/clinic.py (A+B) stretch B
+clinic_scan / clinic_patient ─► agents/clinic.py (A) over synthea.py (B)  stretch B
 ```
 
 ## Contracts
@@ -55,7 +55,7 @@ clinic_scan / clinic_patient ─► agents/clinic.py (A+B) stretch B
 | `explain.pill_cards` / `simplify` / `make_quiz` | A | see `explain.py` |
 | `orchestrator.build_report` | A | `(meds, patient) -> Report` |
 | `audit.log_report` / `log_event` / `recent_events` | B | see `audit.py` |
-| `agents.clinic.scan` / `patient_report` | A+B | see `agents/clinic.py` |
+| `agents.clinic.scan` / `patient_report` | A (data via B's `synthea.py`) | see `agents/clinic.py` |
 
 ### Severity mapping
 
@@ -90,5 +90,5 @@ them in real mode is checkpoint 2.
 | --- | --- | --- |
 | `data/ddinter.sqlite` | DDInter interactions table | No (built by `make ddinter`) |
 | `data/audit.sqlite` | audit events | No |
-| `data/cache/<ns>/*.json` | RxNorm / openFDA responses | Yes, before the demo (public data) |
+| `data/cache/<ns>/*.json` | RxNorm / openFDA / LLM text answers (owner A; never photo calls) | Yes, before the demo (public data) |
 | `data/raw/` | downloads (DDInter CSV, Synthea) | No |

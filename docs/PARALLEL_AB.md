@@ -123,17 +123,17 @@ B   ── DDInter download + DB build ── ddinter · beers · onc checkers �
 
 All of these are additive and must be agreed out loud first.
 
-- [ ] `pillwise/mocks.py`: add `mock_check_result()`.
-- [ ] `pillwise/schemas.py`: comment only. `ingredients` holds lower-case RxNorm IN names.
-- [ ] `CLAUDE.md` ownership table:
+- [x] `pillwise/mocks.py`: add `mock_check_result()`.
+- [x] `pillwise/schemas.py`: comment only. `ingredients` holds lower-case RxNorm IN names.
+- [x] `CLAUDE.md` ownership table:
   - A gains `data/cache/` and `tests/fixtures/pipeline/`.
   - B gains `pillwise/synthea.py`.
   - `pillwise/agents/` becomes A only.
-- [ ] `docs/TASKS.md`:
+- [x] `docs/TASKS.md`:
   - Move B11 to A as A12.
   - A11 depends on `synthea.py`.
   - Add the golden-list test to B8.
-- [ ] `docs/ARCHITECTURE.md`: update the clinic line and the storage table.
+- [x] `docs/ARCHITECTURE.md`: update the clinic line and the storage table.
 
 After the commit, both role branches run `git merge main` right away.
 

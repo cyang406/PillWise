@@ -83,7 +83,7 @@ class Medication(BaseModel):
     directions: str | None = None  # COPIED from the label; never generated
     rxcui: str | None = None  # filled by normalize(); None = could not normalize
     generic_name: str | None = None  # normalized ingredient name(s), lower case
-    ingredients: list[str] = Field(default_factory=list)  # lower-case generic names
+    ingredients: list[str] = Field(default_factory=list)  # lower-case RxNorm ingredient (TTY=IN) names, no salts
     source: MedSource = "manual"
     confirmed: bool = False  # True after the person reviewed it in the UI
 
