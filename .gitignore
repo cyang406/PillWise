@@ -19,3 +19,11 @@ data/photos/*
 .DS_Store
 .idea/
 .vscode/
+# mobile app (Expo)
+node_modules/
+.expo/
+mobile/ios/
+mobile/android/
+mobile/dist/
+# personal Claude Code settings (shared ones live in .claude/skills and .mcp.json)
+.claude/settings.local.json
