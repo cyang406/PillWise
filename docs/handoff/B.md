@@ -14,7 +14,7 @@ Owner keeps this current. The integration agent reads it before merging.
 - B8 tests: `tests/test_checks_{ddinter,beers,onc,registry,audit}.py`, `tests/test_load_golden_names.py` (golden list from `docs/PARALLEL_AB.md`).
 
 ## Stubbed or still mock
-- B9 partial: 5 Wikimedia Commons photos committed in `data/photos/` ON PURPOSE (force-added past `.gitignore`; licenses and attribution in `docs/DATA_SOURCES.md`; no personal data, one photo blurred). Integrator: please keep them. Only `bottle_1.png` (warfarin) fits a scenario; photos for the other scenario drugs still needed.
+- B9 partial: 5 Wikimedia Commons photos committed in `data/photos/` ON PURPOSE (force-added past `.gitignore`; licenses and attribution in `docs/DATA_SOURCES.md`; no personal data, one photo blurred). Integrator: please keep them. `bottle_1.png` (warfarin) + `bottle_7.png` (ibuprofen) give the main demo `warfarin_nsaid` from photos; other scenario drugs have no photo (optional).
 - DDInter evidence URL is the site root (per-interaction page URL not confirmed).
 
 ## How to run / verify my part
