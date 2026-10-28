@@ -122,6 +122,7 @@ with st.container(border=True):
         st.markdown("**Check each name against the bottle.** A misread letter can turn one medicine into another.")
     for it in list(ss["items"]):
         m: Medication = it["med"]
+        it["ok"] = ss.get(f"ok_{it['id']}", it["ok"])  # the click that just happened, so the frame matches it
         with st.container(border=True, key=f"med-{it['id']}-{'ok' if it['ok'] else 'check'}"):
             c_ok, c_info, c_act = st.columns([1.3, 4, 1.2], vertical_alignment="center")
             it["ok"] = c_ok.checkbox("Matches my bottle", value=it["ok"], key=f"ok_{it['id']}")
