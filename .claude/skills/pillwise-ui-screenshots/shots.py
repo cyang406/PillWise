@@ -1,4 +1,4 @@
-"""Click Home -> demo scenario -> Confirm -> Results and save screenshots at phone and desktop width.
+"""Load a sample list -> Check my list on the one-page app and save screenshots at phone and desktop width.
 
 usage: python shots.py OUT_DIR [--url http://localhost:8599] [--scenario "Warfarin nsaid"]
 Needs: pip install playwright && python -m playwright install chromium; the app already running.
@@ -23,14 +23,13 @@ with sync_playwright() as p:
     for name, (w, h) in SIZES.items():
         page = browser.new_page(viewport={"width": w, "height": h})
         page.goto(args.url)
-        page.get_by_text("Demo scenario").click()
-        page.get_by_role("combobox").first.click()
-        page.get_by_role("option", name=args.scenario).click()
-        page.get_by_role("button", name="Load scenario").click()
+        page.get_by_role("button", name="Try a sample list").click()
+        page.get_by_role("button", name=args.scenario).click()
+        page.keyboard.press("Escape")
         page.wait_for_timeout(1500)
         page.screenshot(path=args.out / f"home_{name}.png", full_page=True)
-        page.get_by_role("button", name="Confirm and check").click()
-        page.get_by_text("Your medicine check").wait_for(timeout=60000)
+        page.get_by_role("button", name="Check my list").click()
+        page.get_by_text("Questions to ask").wait_for(timeout=120000)
         page.wait_for_timeout(2000)
         page.screenshot(path=args.out / f"results_{name}.png", full_page=True)
         page.get_by_text("Sources and audit trail").click()

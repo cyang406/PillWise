@@ -29,7 +29,7 @@ the MVP goes first and gets pushed for the next integration. Judging is in perso
 - [ ] C13 Mobile app shell (below).
 - [x] C16 Export the confirmed list as FHIR `MedicationStatement` JSON (`app/fhir.py`, `fhir.resources`).
   Only if C13 is done by 16:45.
-- Cut for today: C6 graph, C7 PDF, C10 clinic view (A11 skipped by team decision).
+- Cut for today: C6 graph, C7 PDF, C10 clinic view (A11 skipped by team decision; page removed in the one-page redesign).
 
 **3. Demo and submission (17:30–18:45)**
 - [ ] C11 `docs/DEMO.md`: replace the translation beat with reading grade + quiz; add the phone beat and the
@@ -82,6 +82,10 @@ Native screens would mean a second copy that could drift from it, plus a new HTT
 - C16 `app/fhir_export.py`: "Download my list for my pharmacy (FHIR)" on Results; FHIR R4 Bundle of MedicationStatement, RxNorm coding when normalized, dosage text = label directions, subject is display-only (no identity). `tests/test_app_fhir.py` validates against `fhir.resources` R4B.
 - Local label reader (roadmap, measured): `scripts/eval_label_reading.py` + `data/eval/label_truth.json` score an Ollama vision model on the committed photos. `qwen3-vl:8b-instruct`: names 10/10, strength 10/10, directions 9/10 (one cut-off label joined into a direction), ~5 s per photo on an M5 Pro. The default `qwen3-vl:8b` tag is the thinking model: `think: false` is ignored and it takes 30-360 s per photo.
 - C11 `docs/DEMO.md` rewritten for the current app (no translation beat; phone, quiz, trust beats; judge Q&A; Thursday checklist).
+
+- One-page redesign (15:45, design canvas https://claude.ai/artifact/BYwCYuwXWeDSMW7s7uATzG): `app/Home.py` is the whole app; Results, Summary and Clinic View pages removed. Verdict sentence, connections and questions for the pharmacist are built from findings by fixed rules in `app/components.py` (never re-rate). Medicine rows with "Matches my bottle" (unticked = orange), several photos read on upload, results hidden when the list changes, "Can I take this?" checks one new medicine against the list, larger-text toggle, summary download. Theme: Atkinson Hyperlegible, teal.
+- All ages: copy no longer says "65+ checks"; `PillCard.special_groups` (contract, additive) quotes FDA label sentences about pregnancy, breastfeeding, children and women/men, picked by code from the label's population sections (`explain.group_notes`, tests in `tests/test_pipeline_groups.py`). No gender field: no rule uses it. `data/cache/` re-warmed online (labels now keep those sections; naproxen added for the Aleve demo).
+- English user guide for the demo: https://claude.ai/artifact/8XNEENcSHW8WRqhTyRoQuP. `docs/DEMO.md` rewritten for the 5-minute recorded demo.
 
 ## Stubbed or still mock
 - 

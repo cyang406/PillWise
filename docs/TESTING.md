@@ -13,7 +13,7 @@ uv run --no-project make check     # ruff + pytest + the 3 scenarios in mock mod
 | `tests/test_contracts.py` | `pillwise.api` signatures and the schema rules (footer, evidence, ids) still hold |
 | `tests/test_checks_*.py`, `tests/test_load_*.py` | B's checkers and data (DDInter, Beers, ONC, audit) |
 | `tests/test_pipeline_*.py` | A's pipeline on recorded RxNorm / openFDA answers and a fake LLM |
-| `tests/test_app_smoke.py` | The UI through Streamlit `AppTest`: scenario → confirm → results, "could not check" never says safe, "Not rated", missing directions, trust panel, summary + quiz, web vs mobile tabs, and Results for all 3 scenarios in real offline mode |
+| `tests/test_app_smoke.py` | The one-page UI through Streamlit `AppTest`: sample → check → verdict and questions, results hide when the list changes, typed unknown medicine is "could not check", "Not rated", missing directions, trust panel, quiz with one LLM call per report, web vs mobile camera, and all 3 samples in real offline mode (incl. label quotes and "Can I take this?" with Aleve) |
 | `tests/test_app_fhir.py` | The FHIR export validates against the official R4 schema and carries no identity |
 | `scripts/run_scenarios.py` | The 3 demo scenarios flag what they must |
 
@@ -48,18 +48,20 @@ Start the app in real offline mode (`make app` with the variables above) and ope
 
 | # | Do | Expect |
 | --- | --- | --- |
-| 1 | Open Home | Disclaimer first; tabs "Upload a photo" and "Demo scenario" (no camera tab on the web) |
-| 2 | Open `/?app=mobile` | Tabs "Take a photo", "Upload", "Demo scenario" (what the mobile app shows) |
-| 3 | Demo scenario → Warfarin nsaid → Load | 3 rows in the table, age 72 |
-| 4 | Change "Ibuprofen" to "Advil", Confirm and check | Offline: Advil is in the red "could not check" box (its RxNorm answer is not cached), and the "Serious" card is gone. That is the safety rule working: not found is never safe. Online: "What we checked" shows Advil → ibuprofen and the "Serious" card is back |
-| 5 | Open "Where this comes from" on the red card | DDInter record + FDA quote in quotation marks + DailyMed link that opens |
-| 6 | Home → Start over → type "Mysterol" → Confirm | Red box "We could not check: Mysterol … does NOT mean they are safe" |
-| 7 | Load Safe otc → Confirm | Only a "Not rated" card, faded; no red or orange |
-| 8 | Results → "Read a plain-language summary" | Reading level ≤ 6; answer the quiz; score shown |
-| 9 | Results → "Download my list for my pharmacy (FHIR)" | A `.fhir.json` file with no name or Rx number |
-| 10 | "Sources and audit trail" | Data versions, FDA labels, 9 audit entries for this report |
-| 11 | Turn Wi-Fi off, repeat 3 to 5 | Same results (offline cache) |
-| 12 | With `OPENAI_API_KEY` in `.env` and `PILLWISE_OFFLINE=0`: upload `data/photos/bottle_1.png` | Warfarin 5 mg, directions copied exactly; then `bottle_7.png`: Ibuprofen 200 mg, no directions |
+| 1 | Open the page | Disclaimer; "Add bottle photos", "Type a medicine", "Try a sample list"; no camera (web) |
+| 2 | Open `/?app=mobile` | A "Take a photo" camera appears (what the mobile app shows) |
+| 3 | Try a sample list → Warfarin nsaid | 3 medicine rows, all ticked, age 72 |
+| 4 | Untick one row | Orange outline and "Not ticked yet" reminder |
+| 5 | Check my list | Verdict "Ask your pharmacist about ibuprofen with warfarin before your next dose."; red Serious card |
+| 6 | Open "Where this comes from" on the red card | DDInter record + FDA quote in quotation marks + DailyMed link that opens |
+| 7 | Remove a row | Results disappear: "Your list changed since the last check" |
+| 8 | Type "Mysterol", Check my list | Red box "We could not check: Mysterol … does NOT mean they are safe" |
+| 9 | Warfarin card → "Pregnancy, breastfeeding, children" | Exact FDA label sentences with the label date |
+| 10 | Take this to your pharmacist | Numbered questions, summary with reading level ≤ 6, quiz with score, both downloads work |
+| 11 | "Thinking of buying something new?" → Aleve | Aleve → naproxen; Serious with warfarin (works offline too: cached) |
+| 12 | "Sources and audit trail" | Data versions, FDA labels, audit entries for this report |
+| 13 | Turn Wi-Fi off (`PILLWISE_OFFLINE=1`), repeat 3 to 6 | Same results |
+| 14 | Online with `OPENAI_API_KEY`: upload `bottle_1.png` and `gen_ibuprofen_200mg.png` together | Both read; directions copied exactly |
 
 ## 5. On a phone
 
