@@ -97,3 +97,18 @@ def test_llm_failure_keeps_finding(monkeypatch):
     monkeypatch.setattr(llm, "structured", boom)
     f = _finding()
     assert evidence.attach_label_evidence([f], []) == [f]
+
+
+@pytest.mark.parametrize(
+    "drug,section",
+    [("oxybutynin", "geriatric_use"), ("diphenhydramine", "when_using"), ("ibuprofen", "ask_doctor")],
+)
+def test_older_adult_and_otc_sections_are_kept(drug, section):
+    label = evidence.fetch_label([drug])
+    assert evidence.section_text(label, section)
+    assert evidence.section_text(label, section) in evidence._label_corpus(label)
+
+
+def test_dosage_section_is_never_kept():
+    for drug in ("ibuprofen", "warfarin"):
+        assert "dosage_and_administration" not in evidence.fetch_label([drug])

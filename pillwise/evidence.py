@@ -33,6 +33,9 @@ EVIDENCE_SECTIONS = (
     "drug_interactions",
     "ask_doctor_or_pharmacist",
     "do_not_use",
+    "geriatric_use",  # Rx: older adults (supports Beers findings)
+    "when_using",  # OTC: e.g. "marked drowsiness may occur"
+    "ask_doctor",  # OTC: conditions to ask about first
     "warnings",
     "warnings_and_cautions",
     "precautions",

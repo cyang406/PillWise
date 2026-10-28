@@ -33,6 +33,8 @@ CARD_SECTIONS = (
     "warnings_and_cautions",
     "do_not_use",
     "ask_doctor_or_pharmacist",
+    "when_using",
+    "geriatric_use",
     "stop_use",
 )
 
