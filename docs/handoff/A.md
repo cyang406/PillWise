@@ -30,6 +30,8 @@ Confirmed against RxNorm on 2026-10-28. `ingredients` are lower-case RxNorm IN n
 - CP1 integration with B done (`integration/1249` → main, tag `cp1`): all 3 scenarios pass in real mode.
 
 - A8 `explain.simplify` (English): one section per finding, most serious first, title prefixed by a code-set severity word ("Serious", "Important", "Be careful", "Minor", "Unclear"). The LLM rewrites until the `textstat` grade is at most 6 (max 3 tries, keeps the easiest version). A rewrite that adds a dose-like number is rejected. The pharmacist footer is added by code. Extra sections: "No problems found" (never says "safe") and "Could not check". `es` / `zh` raise `NotImplementedError` (the UI shows "Coming soon"). Live grades: 5.0 to 5.3 overall.
+- Pill cards: the prompt explains that openFDA text lost its bullet points (so run-on OTC items are split), and code drops any "watch for" item over 20 words.
+- Summary rewrites are also rejected if they drop or add a medicine name from the report (`report_names`); the retry hint names the problem. B's current texts name no drugs (titles do), so today this is a guardrail.
 - A10 `explain.make_quiz`: the LLM writes the question and answers, then code places the correct answer at a stable position. The explanation is the checker's own summary. Questions with the same lesson are asked once, and `unknown` findings are skipped. Any failure or dose-like answer falls back to a fixed question.
 
 ## Stubbed or still mock
