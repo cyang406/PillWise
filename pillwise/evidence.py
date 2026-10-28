@@ -151,10 +151,18 @@ The other medicine(s) involved: {others}.
 Copy, WORD FOR WORD, the one or two sentences from the label text that best support
 this claim (for example a sentence naming {others} or its drug class, such as
 "NSAIDs", "blood thinners" or "anticoagulants"). Copy exactly; do not shorten, fix or
-paraphrase. If no sentence in the label supports the claim, return null.
-
+paraphrase. The quote must be ONE continuous piece of the label text: do not add
+headings or table titles, and do not join separate parts. If no sentence in the label
+supports the claim, return null.
+{retry}
 LABEL TEXT:
 {text}"""
+
+RETRY_NOTE = """
+Your previous answer was NOT found word for word in the label text:
+"{bad}"
+Try again: copy one continuous span exactly as it appears below, or return null.
+"""
 
 
 def _label_corpus(label: dict) -> str:
@@ -174,16 +182,19 @@ def quote_for(finding: Finding, drug: str) -> Evidence | None:
     if not corpus:
         return None
     others = [d for d in finding.drugs if d != drug] or [drug]
-    prompt = QUOTE_PROMPT.format(
-        drug=drug, title=finding.title, summary=finding.plain_summary, others=", ".join(others), text=corpus
-    )
-    out = llm.structured(prompt, _Quote, fast=True)
-    exact = verify_quote(out.quote, corpus)
-    if exact is None:
-        if out.quote:
-            log.warning("dropped unverified quote for %s / %s", finding.id, drug)
-        return None
-    return label_evidence(label, exact)
+    fields = {"drug": drug, "title": finding.title, "summary": finding.plain_summary, "others": ", ".join(others)}
+
+    retry = ""
+    for _attempt in range(2):  # one retry when the quote is not in the label
+        out = llm.structured(QUOTE_PROMPT.format(**fields, retry=retry, text=corpus), _Quote, fast=True)
+        if not out.quote:
+            return None
+        exact = verify_quote(out.quote, corpus)
+        if exact is not None:
+            return label_evidence(label, exact)
+        retry = RETRY_NOTE.format(bad=out.quote[:500])
+    log.warning("dropped unverified quote for %s / %s", finding.id, drug)
+    return None
 
 
 def attach_label_evidence(findings: list[Finding], meds: list[Medication]) -> list[Finding]:

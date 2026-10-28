@@ -117,3 +117,34 @@ def test_older_adult_and_otc_sections_are_kept(drug, section):
 def test_dosage_section_is_never_kept():
     for drug in ("ibuprofen", "warfarin"):
         assert "dosage_and_administration" not in evidence.fetch_label([drug])
+
+
+def test_retry_once_after_unverified_quote(monkeypatch):
+    calls = []
+
+    def fake(prompt, output_type, **kw):
+        calls.append(prompt)
+        if len(calls) % 2 == 1:  # first try for each drug: stitched, not in label
+            return output_type(quote="Table 3: Drugs that increase bleeding. Monitor closely with warfarin always.")
+        corpus = prompt.split("LABEL TEXT:\n", 1)[1]
+        i = corpus.lower().find("bleed")
+        return output_type(quote=corpus[corpus.rfind(".", 0, i) + 1 : corpus.find(".", i) + 1].strip())
+
+    monkeypatch.setattr(llm, "structured", fake)
+    [g] = evidence.attach_label_evidence([_finding()], [])
+    assert any(e.source == "openFDA" for e in g.evidence)
+    assert "was NOT found word for word" in calls[1]
+    assert len(calls) == 4  # 2 drugs x (1 try + 1 retry)
+
+
+def test_gives_up_after_one_retry(monkeypatch):
+    calls = []
+
+    def fake(prompt, output_type, **kw):
+        calls.append(prompt)
+        return output_type(quote="This sentence is invented and is not in any label at all.")
+
+    monkeypatch.setattr(llm, "structured", fake)
+    [g] = evidence.attach_label_evidence([_finding()], [])
+    assert [e.source for e in g.evidence] == ["DDInter"]
+    assert len(calls) == 4
