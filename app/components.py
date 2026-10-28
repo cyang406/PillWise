@@ -110,7 +110,7 @@ h1, h2, h3, h4 {{ letter-spacing: -0.02em; }}
 .pw-verdict {{ display: flex; gap: 1rem; align-items: flex-start; }}
 .pw-verdict h2 {{ margin: 0; padding: 0; font-size: 1.7rem; line-height: 1.25; }}
 .pw-matrix {{ display: grid; gap: 4px; font-size: .8rem; text-align: center; }}
-.pw-matrix span {{ padding: .55rem .1rem; border-radius: 8px; }}
+.pw-matrix span {{ padding: .55rem .1rem; border-radius: 8px; font-size: .74rem; overflow-wrap: normal; word-break: normal; hyphens: auto; }}
 .pw-matrix .h {{ font-weight: 600; }} .pw-matrix .r {{ text-align: left; font-weight: 600; }}
 .pw-matrix .e {{ background: #F5F7FB; }}
 .pw-quote {{ margin: 0 0 .6rem; padding-left: .75rem; border-left: 3px solid #CBD5E1; color: #334155; }}
@@ -121,6 +121,12 @@ h1, h2, h3, h4 {{ letter-spacing: -0.02em; }}
 [class*="st-key-agebox"], [class*="st-key-pharm"] {{ background: #F5F7FB; border: 0 !important; }}
 [class*="st-key-newmed"] {{ background: #2563EB; border: 0 !important; }}
 [class*="st-key-newmed"] h4, [class*="st-key-newmed"] [data-testid="stWidgetLabel"] p {{ color: #FFFFFF !important; }}
+[class*="st-key-open_"] button {{ background: #EFF4FF; color: #1D4ED8; border: 0; font-weight: 600; }}
+[class*="st-key-detail-"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-detail-caution"] {{ background: #FFF8EB; color: #78350F; }}
+[class*="st-key-detail-with"] {{ background: #FFFFFF; border: 1px solid #E2E8F0 !important; }}
+.pw-ask {{ display: flex; align-items: center; justify-content: center; min-height: 2.6rem; border-radius: .75rem;
+  background: #2563EB; color: #FFFFFF !important; font-weight: 700; text-decoration: none; }}
 [data-testid="stFileUploaderDropzone"] {{ border: 2px dashed #BFD0F8; background: #F8FAFF; }}
 </style>""",
         unsafe_allow_html=True,
@@ -276,14 +282,12 @@ def finding_card(f: Finding, where: str = "main") -> None:
 
 
 def connections_box(report: Report) -> None:
-    """Matrix of the person's medicines (design v2); a list when there are too many to fit."""
-    with st.container(border=True):
+    """Matrix of the person's medicines (design v3); tap a medicine name to open "About this medicine"."""
+    with st.container(border=True, key="connect"):
         st.markdown("#### How they connect")
+        st.caption("Tap a medicine name to learn about it.")
         meds = [m for m in report.meds if m.match_names]
         pair_sev = {frozenset((a, b)): s for a, b, s in connections(report)}
-        if not pair_sev:
-            st.caption("No interactions between your medicines were found in our sources.")
-            return
 
         def sev(i: int, j: int) -> str | None:
             for a in meds[i].match_names:
@@ -292,29 +296,33 @@ def connections_box(report: Report) -> None:
                         return pair_sev[frozenset((a, b))]
             return None
 
-        if len(meds) <= 5:
-            cols = f"grid-template-columns: 1.4fr repeat({len(meds)}, minmax(0, 1fr))"
-            cells = ['<span class="h"></span>'] + [f'<span class="h">{m.name[:5]}.</span>' for m in meds]
+        if not pair_sev:
+            st.caption("No interactions between your medicines were found in our sources.")
+        elif len(meds) <= 5:
+            cols = f"grid-template-columns: minmax(0, 1.25fr) repeat({len(meds)}, minmax(0, 1fr))"
+            cells = ['<span class="h"></span>'] + [f'<span class="h">{m.name}</span>' for m in meds]
             for i, m in enumerate(meds):
                 cells.append(f'<span class="r">{m.name}</span>')
                 for j in range(len(meds)):
                     s = sev(i, j) if i != j else None
-                    short = (
-                        {"Important": "Imp.", "Not rated": "?"}.get(SEVERITY_STYLE[s][0], SEVERITY_STYLE[s][0])
-                        if s
-                        else ""
+                    cells.append(
+                        f'<span class="pw-cell-{s}">{SEVERITY_STYLE[s][0]}</span>' if s else '<span class="e"></span>'
                     )
-                    cells.append(f'<span class="pw-cell-{s}">{short}</span>' if s else '<span class="e"></span>')
             st.markdown(
-                f'<div class="pw-matrix" style="{cols}" role="table" aria-label="Interactions between your medicines">'
+                f'<div class="pw-matrix" lang="en" style="{cols}" role="table" aria-label="Interactions between your medicines">'
                 + "".join(cells)
                 + "</div>",
                 unsafe_allow_html=True,
             )
-            st.caption("? = listed together, not rated. Empty = nothing found in our sources.")
+            st.caption("Not rated = listed together, but how serious is unknown. Empty = nothing found in our sources.")
         else:
             for a, b, s in connections(report):
                 st.markdown(f"{a.capitalize()} + {b.capitalize()}: **{SEVERITY_STYLE[s][0]}**")
+        by_key = {m.key: m for m in report.meds}
+        with st.container(horizontal=True, wrap=True, gap="small"):
+            for i, c in enumerate(report.pill_cards):
+                if st.button(c.name, key=f"open_{report.id}_{i}", icon=":material/info:"):
+                    medicine_dialog(c, by_key.get(c.med_key), report)
 
 
 def checked_as(report: Report) -> None:
@@ -362,30 +370,52 @@ def _group_quotes(notes: list[GroupNote]) -> None:
         st.markdown(f'<span class="pw-src">FDA label · {mine[0].evidence.version}</span>{link}', unsafe_allow_html=True)
 
 
-def medicine_detail(c: PillCard, med: Medication | None, report: Report) -> None:
-    """Tap a medicine: what it's for, how to take it (copied), cautions, with your other pills, label quotes."""
+def _medicine_body(c: PillCard, med: Medication | None, report: Report) -> None:
     names = set(med.match_names) if med else {c.med_key}
     strength = f" {med.strength}" if med and med.strength else ""
-    with st.expander(f"{c.name}{strength}"):
-        st.markdown(f"**What it’s for:** {c.what_it_is_for}")
+    badge = match_badge(med) if med else ""
+    st.markdown(
+        f'<div style="display:flex;gap:.9rem;align-items:center">{PILL_ICON}<div>{badge}'
+        f'<div style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em">{c.name}{strength}</div></div></div>',
+        unsafe_allow_html=True,
+    )
+    with st.container(border=True, key="detail-for"):
+        st.markdown(f"**WHAT IT’S FOR**  \n{c.what_it_is_for}")
+    with st.container(border=True, key="detail-how"):
+        st.markdown(f"**HOW TO TAKE · FROM YOUR LABEL**  \n{c.how_to_take or NO_DIRECTIONS}")
+    if c.watch_for:
+        with st.container(border=True, key="detail-caution"):
+            st.markdown("**CAUTION**\n" + "\n".join(f"- {w}" for w in c.watch_for))
+    others = [
+        f'<li><strong class="pw-ink-{f.severity}">{SEVERITY_STYLE[f.severity][0]}</strong> with '
+        f"{', '.join(d for d in f.drugs if d not in names)}</li>"
+        for f in report.sorted_findings()
+        if f.kind == "interaction" and names & set(f.drugs)
+    ]
+    with st.container(border=True, key="detail-with"):
         st.markdown(
-            f"**How to take, from your label:** {c.how_to_take}"
-            if c.how_to_take
-            else f"**How to take:** {NO_DIRECTIONS}"
+            "**WITH YOUR OTHER PILLS**"
+            + (
+                f'<ul style="list-style:none;padding:0;margin:.3rem 0 0">{"".join(others)}</ul>'
+                if others
+                else "  \nNothing found in our sources."
+            ),
+            unsafe_allow_html=True,
         )
-        if c.watch_for:
-            st.markdown("**Caution:**\n" + "\n".join(f"- {w}" for w in c.watch_for))
-        others = [
-            f'<span class="pw-chip pw-cell-{f.severity}">{SEVERITY_STYLE[f.severity][0]} with '
-            f"{', '.join(d for d in f.drugs if d not in names)}</span>"
-            for f in report.sorted_findings()
-            if f.kind == "interaction" and names & set(f.drugs)
-        ]
-        if others:
-            st.markdown("**With your other pills:** " + "".join(others), unsafe_allow_html=True)
-        if c.special_groups:
-            st.markdown("**Pregnancy, breastfeeding, children: what the label says**")
+    if c.special_groups:
+        with st.expander("Pregnancy, breastfeeding, children: what the label says"):
             _group_quotes(c.special_groups)
+
+
+@st.dialog("About this medicine", width="medium")
+def medicine_dialog(c: PillCard, med: Medication | None, report: Report) -> None:
+    _medicine_body(c, med, report)
+    b1, b2 = st.columns([1, 1.4])
+    if b1.button("Close", width="stretch"):
+        st.rerun()
+    b2.markdown(
+        '<a class="pw-ask" href="#ask-your-pharmacist" target="_self">Ask pharmacist</a>', unsafe_allow_html=True
+    )
 
 
 def trust_panel(report: Report, audit_events: list[AuditEvent] | None = None) -> None:

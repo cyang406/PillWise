@@ -23,7 +23,6 @@ from components import (
     inject_css,
     list_signature,
     match_badge,
-    medicine_detail,
     mock_banner,
     questions,
     summary_text,
@@ -263,10 +262,6 @@ with f_col:
     checked_as(report)
 with a_col2:
     connections_box(report)
-    st.markdown("#### About each medicine")
-    by_key = {m.key: m for m in report.meds}
-    for c in report.pill_cards:
-        medicine_detail(c, by_key.get(c.med_key), report)
 
 # --- 3. Ask your pharmacist ---------------------------------------------------------------
 with st.container(border=True, key="pharm"):

@@ -120,9 +120,10 @@ def test_unchecked_box_never_says_safe(mock_mode):
 
 def test_not_rated_and_missing_directions(mock_mode):
     card = PillCard(med_key="ibuprofen", name="Ibuprofen", what_it_is_for="Pain reliever.", how_to_take=None)
-    text = text_of(with_report(_report(pill_cards=[card])))
-    assert "Not rated" in text
-    assert "We could not read directions on your label" in text
+    at = with_report(_report(pill_cards=[card]))
+    assert "Not rated" in text_of(at)
+    button(at, "Ibuprofen").click().run(timeout=60)  # "About this medicine"
+    assert "We could not read directions on your label" in text_of(at)
 
 
 def test_trust_panel_lists_sources_and_labels(mock_mode):
@@ -169,7 +170,11 @@ def test_one_page_real_offline(real_mode, scenario, tmp_path, monkeypatch):
     assert not at.session_state["report"].is_mock and "mock mode" not in text
     assert "Some safety checks did not run" not in text
     assert "**Audit log** (" in " ".join(str(m.value) for m in at.markdown)
-    assert "what the label says" in text  # pregnancy / children quotes in "About each medicine"
+    # Tap a medicine name in "How they connect": the "About this medicine" dialog with label quotes
+    next(b for b in at.button if b.label == at.session_state["report"].pill_cards[0].name).click().run(timeout=60)
+    dialog = text_of(at)
+    assert "HOW TO TAKE · FROM YOUR LABEL" in dialog and "WITH YOUR OTHER PILLS" in dialog
+    assert any("what the label says" in e.label for e in at.expander)
     if scenario == "warfarin_nsaid":
         assert "Serious" in text
         at.text_input[-1].set_value("Aleve")
