@@ -1,0 +1,17 @@
+# Owner: C. Streamlit settings for the PillWise UI.
+
+[theme]
+base = "light"
+# Teal, not Streamlit's default red: red is reserved for "Serious" findings.
+primaryColor = "#0f766e"
+
+[client]
+# Hide the developer toolbar ("Deploy" etc.) for patients and judges.
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+# Bottle photos from phones can be large; Streamlit's default is 200 MB, 25 MB is plenty.
+maxUploadSize = 25

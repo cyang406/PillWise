@@ -17,7 +17,7 @@ except NotImplementedError:
     st.stop()
 
 df = pd.DataFrame([r.model_dump() for r in rows])
-st.dataframe(df, use_container_width=True, hide_index=True)
+st.dataframe(df, width="stretch", hide_index=True)
 pid = st.selectbox("Open a patient", [""] + df["patient_id"].tolist())
 if pid:
     for f in api.clinic_patient(pid).sorted_findings():

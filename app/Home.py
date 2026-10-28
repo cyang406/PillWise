@@ -76,9 +76,10 @@ edited = st.data_editor(
     width="stretch",
     key=f"med_editor_{ss.editor_version}",
     column_config={
-        "name": st.column_config.TextColumn("Medicine name", required=True),
-        "strength": st.column_config.TextColumn("Strength"),
-        "directions": st.column_config.TextColumn("Directions (as on the label)"),
+        # Narrow name/strength so directions stay visible at phone width (390 px).
+        "name": st.column_config.TextColumn("Medicine", required=True, width="small"),
+        "strength": st.column_config.TextColumn("Strength", width="small"),
+        "directions": st.column_config.TextColumn("Directions (as on the label)", width="large"),
     },
 )
 age = st.number_input(
