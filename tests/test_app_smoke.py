@@ -131,3 +131,34 @@ def test_results_real_offline(real_mode, scenario, tmp_path, monkeypatch):
     assert "**Audit log** (" in " ".join(m.value for m in at.markdown)  # C3: this report's audit entries
     if scenario == "warfarin_nsaid":
         assert "Serious" in text_of(at)
+
+
+def summary_page(report: Report) -> AppTest:
+    at = AppTest.from_file(str(APP / "Home.py")).run(timeout=30)
+    at.session_state["report"] = report
+    return at.switch_page("pages/2_Summary.py").run(timeout=30)
+
+
+def test_summary_and_quiz(mock_mode):
+    meds, patient = api.load_scenario("warfarin_nsaid")
+    report = api.check(meds, patient)
+    at = summary_page(report)
+    assert not at.exception
+    assert at.metric and "Reading level" in at.metric[0].label
+    quiz = at.session_state["quiz_questions"]
+    assert quiz and len(at.radio) == len(quiz)
+    for r, q in zip(at.radio, quiz, strict=True):  # answer everything right
+        r.set_value(q.options[q.correct_index])
+    button(at, "Check my answers").click().run(timeout=30)
+    assert f"You got {len(quiz)} of {len(quiz)}" in text_of(at)
+
+
+def test_summary_calls_llm_once_per_report(mock_mode, monkeypatch):
+    meds, patient = api.load_scenario("safe_otc")
+    report = api.check(meds, patient)
+    calls = []
+    real = api.simplify
+    monkeypatch.setattr(api, "simplify", lambda r, lang="en": calls.append(lang) or real(r, lang))
+    at = summary_page(report)
+    at.run(timeout=30)  # a rerun (e.g. a quiz click) must not call the LLM again
+    assert calls == ["en"]
