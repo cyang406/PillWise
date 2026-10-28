@@ -55,3 +55,29 @@ def test_cache_miss_offline_does_not_raise():
 def test_normalize_all_keeps_order():
     names = [m.name for m in normalize.normalize_all([Medication(name="Lisinopril"), Medication(name="Warfarin")])]
     assert names == ["Lisinopril", "Warfarin"]
+
+
+@pytest.mark.parametrize(
+    "raw,expanded",
+    [
+        ("HYDROCO/APAP 5-500M", "hydrocodone / acetaminophen 5-500M"),
+        ("Lisinopril HCTZ", "Lisinopril hydrochlorothiazide"),
+        ("WARFARIN SOD", "WARFARIN sodium"),
+        ("Sodium chloride", "Sodium chloride"),  # whole words only: no change
+        ("Advil", "Advil"),
+    ],
+)
+def test_expand_abbreviations(raw, expanded):
+    assert normalize.expand_abbreviations(raw) == expanded
+
+
+@pytest.mark.parametrize(
+    "name,strength,expected",
+    [
+        ("HYDROCO/APAP 5-500M", None, ["acetaminophen", "hydrocodone"]),
+        ("Lisinopril HCTZ", "20-12.5 mg", ["hydrochlorothiazide", "lisinopril"]),
+        ("WARFARIN SOD", "5MG", ["warfarin"]),
+    ],
+)
+def test_pharmacy_abbreviations_normalize(name, strength, expected):
+    assert normalize.normalize_one(Medication(name=name, strength=strength)).ingredients == expected

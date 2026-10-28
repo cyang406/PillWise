@@ -72,3 +72,11 @@ def test_claude_model_name_is_rejected(fake, monkeypatch):
     monkeypatch.setenv("PILLWISE_MODEL_MAIN", "claude-sonnet-5-5")
     with pytest.raises(llm.LLMError):
         llm.structured("q", _Out)
+
+
+def test_missing_key_gives_clear_error(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    llm._client.cache_clear()
+    with pytest.raises(llm.LLMError, match="OPENAI_API_KEY"):
+        llm._client()
+    llm._client.cache_clear()

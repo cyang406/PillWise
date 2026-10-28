@@ -13,7 +13,6 @@ from pathlib import Path
 import pytest
 
 from pillwise import api, checks, llm, mocks, orchestrator
-from pillwise.checks.base import CheckResult
 from pillwise.config import get_settings
 from pillwise.schemas import Medication
 
@@ -21,11 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 from run_scenarios import evaluate  # noqa: E402
 
 CACHE = Path(__file__).parent / "fixtures" / "pipeline" / "cache"
-
-
-def mock_check_result(meds, patient) -> CheckResult:
-    """Local stand-in for mocks.mock_check_result (pending contract change)."""
-    return CheckResult(findings=mocks.mock_report(meds, patient).findings, versions={"mock": mocks.MOCK_VERSION})
 
 
 def fake_llm(prompt, output_type, **kw):
@@ -41,7 +35,7 @@ def pipeline_env(monkeypatch, tmp_path):
     monkeypatch.setenv("PILLWISE_CACHE_DIR", str(CACHE))
     monkeypatch.setenv("PILLWISE_OFFLINE", "1")
     monkeypatch.setenv("PILLWISE_AUDIT_DB", str(tmp_path / "audit.sqlite"))
-    monkeypatch.setattr(checks, "run_all", mock_check_result)
+    monkeypatch.setattr(checks, "run_all", mocks.mock_check_result)
     monkeypatch.setattr(llm, "structured", fake_llm)
 
 
