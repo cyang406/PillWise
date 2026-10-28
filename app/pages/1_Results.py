@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+import fhir_export
 from components import (
     checked_as,
     disclaimer,
@@ -42,6 +43,13 @@ checked_as(report)
 
 trust_panel(report, None if report.is_mock else api.recent_audit_events(200))
 
+st.download_button(
+    "Download my list for my pharmacy (FHIR)",
+    fhir_export.to_json(report),
+    file_name="pillwise-medications.fhir.json",
+    mime="application/fhir+json",
+    help="A standard health-record file (FHIR R4 MedicationStatement) your pharmacy or clinic system can import.",
+)
 st.page_link("pages/2_Summary.py", label="Read a plain-language summary", icon="📝")
 st.page_link("Home.py", label="Check another list", icon="🏠")
 disclaimer()
