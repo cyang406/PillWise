@@ -16,7 +16,7 @@ def test_sleep_aid_scenario_flags_single_and_combo():
     meds = [med("Diphenhydramine"), med("Oxybutynin"), med("Lisinopril")]
     found = kinds(BeersChecker().check(meds, PatientContext(age=78)))
     assert found[("older_adult_risk", ("diphenhydramine",))] == "caution"
-    assert found[("older_adult_risk", ("oxybutynin",))] == "caution"
+    assert ("older_adult_risk", ("oxybutynin",)) not in found  # Beers 2023: only Table 3/7, not Table 2
     assert found[("older_adult_combo", ("diphenhydramine", "oxybutynin"))] == "moderate"
     assert not any("lisinopril" in drugs for _, drugs in found)
 

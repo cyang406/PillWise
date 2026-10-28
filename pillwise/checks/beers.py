@@ -24,7 +24,7 @@ from pillwise.schemas import Evidence, Finding, Medication, PatientContext
 
 class BeersChecker:
     name = "beers"
-    version = "2023-subset-seed"
+    version = "2023-subset-2026-10-28"
 
     def __init__(self, path=None) -> None:
         self.path = Path(path or get_settings().beers_path)

@@ -3,6 +3,7 @@
 Owner keeps this current. The integration agent reads it before merging.
 
 ## Done
+- B3 `data/beers.json`: 14 single-drug + 5 combo entries checked against the 2023 paper and `verified: true` (fixes listed in `docs/DATA_SOURCES.md` verification log). Oxybutynin no longer gets a single-drug card; it is still caught by the anticholinergic combo.
 - B1 DDInter 2.0: 10 CSVs (codes A,B,D,H,L,M,N,P,R,V) from https://ddinter2.scbdd.com/static/media/download/ddinter_downloads_code_<X>.csv, headers match the loader; `make ddinter` -> 336,075 rows, 215,570 unique pairs, no level conflicts. Golden names all present as plain RxNorm IN names: no name mapping needed.
 - B2 `checks/ddinter.py`: pairwise lookup by `match_names`, DDInter level -> severity, template text, DDInter evidence. Missing DB raises (-> `CheckResult.errors`, "could not check").
 - B4 `checks/beers.py`: single-drug (caution) + combo rules `count_tag` / `pair_tags` (moderate); skipped under 65; "If you are 65 or older" when age unknown.
@@ -13,8 +14,7 @@ Owner keeps this current. The integration agent reads it before merging.
 - B8 tests: `tests/test_checks_{ddinter,beers,onc,registry,audit}.py`, `tests/test_load_golden_names.py` (golden list from `docs/PARALLEL_AB.md`).
 
 ## Stubbed or still mock
-- B3 / B5 data: every entry in `data/beers.json` and `data/onc_high.json` is still `verified: false`.
-  Beers still runs but evidence version says "2023 (unverified seed)"; ONC emits nothing in real mode.
+- B5 data: every rule in `data/onc_high.json` is still `verified: false`, so ONC emits nothing in real mode.
 - DDInter evidence URL is the site root (per-interaction page URL not confirmed).
 
 ## How to run / verify my part

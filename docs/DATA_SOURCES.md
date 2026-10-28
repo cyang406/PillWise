@@ -33,29 +33,29 @@ same thing in our own words and does not add anything.
 
 Single drugs (`drugs`; most are in Table 2, "potentially inappropriate medications"):
 
-- [ ] `first_gen_antihistamines`: Table 2, first-generation antihistamines. Check that all 5 names are listed.
-- [ ] `benzodiazepines`: Table 2.
-- [ ] `z_drugs`: Table 2, nonbenzodiazepine hypnotics.
-- [ ] `nsaids_nonselective`: Table 2, "avoid chronic use". Check each of the 10 names; check the wording about stomach protection.
-- [ ] `aspirin_primary_prevention`: Table 2 (wording changed in 2023). Check our "started at an older age" phrasing.
-- [ ] `sulfonylureas`: Table 2 (2023 widened this to all sulfonylureas). Check the 3 names.
-- [ ] `muscle_relaxants`: Table 2, skeletal muscle relaxants. Check all 5 names.
-- [ ] `ppis_long_term`: Table 2, "avoid scheduled use > 8 weeks" unless high risk. Check the 6 names.
-- [ ] `warfarin_first_line`: Table 2 (new in 2023): avoid starting warfarin as first choice for AF / VTE. Check wording.
-- [ ] `anticholinergic_antidepressants`: Table 2, antidepressants with strong anticholinergic activity. Check the 4 names.
-- [ ] `bladder_antimuscarinics`: **unsure.** May be in Table 3 (drug-disease, e.g. dementia) and Table 7 rather than Table 2. If not in Table 2, delete it or reword it to the condition it applies to.
-- [ ] `metoclopramide`: Table 2.
-- [ ] `meperidine`: Table 2.
-- [ ] `megestrol`: Table 2.
-- [ ] `mineral_oil_oral`: Table 2.
+- [x] `first_gen_antihistamines`: Table 2, first-generation antihistamines. Check that all 5 names are listed.
+- [x] `benzodiazepines`: Table 2.
+- [x] `z_drugs`: Table 2, nonbenzodiazepine hypnotics.
+- [x] `nsaids_nonselective`: Table 2, "avoid chronic use". Check each of the 10 names; check the wording about stomach protection.
+- [x] `aspirin_primary_prevention`: Table 2 (wording changed in 2023). Check our "started at an older age" phrasing.
+- [x] `sulfonylureas`: Table 2 (2023 widened this to all sulfonylureas). Check the 3 names.
+- [x] `muscle_relaxants`: Table 2, skeletal muscle relaxants. Check all 5 names.
+- [x] `ppis_long_term`: Table 2, "avoid scheduled use > 8 weeks" unless high risk. Check the 6 names.
+- [x] `warfarin_first_line`: Table 2 (new in 2023): avoid starting warfarin as first choice for AF / VTE. Check wording.
+- [x] `anticholinergic_antidepressants`: Table 2, antidepressants with strong anticholinergic activity. Check the 4 names.
+- [x] `bladder_antimuscarinics`: **removed.** Not a Table 2 criterion; only Table 3 (delirium, dementia, falls) and Table 7. The drugs stay in `tags.anticholinergic`.
+- [x] `metoclopramide`: Table 2.
+- [x] `meperidine`: Table 2.
+- [x] `megestrol`: Table 2.
+- [x] `mineral_oil_oral`: Table 2.
 
 Combinations (`combos`; Table 5, "drug-drug interactions to avoid"):
 
-- [ ] `two_anticholinergics`: Table 5, anticholinergic + anticholinergic. Also check the `tags.anticholinergic` list against Table 7 (strong anticholinergic drugs).
-- [ ] `three_cns_active`: Table 5, three or more CNS-active drugs. Check `tags.cns_active` against the classes the paper names.
-- [ ] `opioid_benzodiazepine`: Table 5.
-- [ ] `opioid_gabapentinoid`: Table 5. Check `tags.gabapentinoid`.
-- [ ] `warfarin_antibiotic`: Table 5, warfarin + certain antibiotics. Check which antibiotics are named (`tags.warfarin_risky_antibiotic`).
+- [x] `two_anticholinergics`: Table 5, anticholinergic + anticholinergic. Also check the `tags.anticholinergic` list against Table 7 (strong anticholinergic drugs).
+- [x] `three_cns_active`: Table 5, three or more CNS-active drugs. Check `tags.cns_active` against the classes the paper names.
+- [x] `opioid_benzodiazepine`: Table 5.
+- [x] `opioid_gabapentinoid`: Table 5. Check `tags.gabapentinoid`.
+- [x] `warfarin_antibiotic`: Table 5, warfarin + certain antibiotics. Check which antibiotics are named (`tags.warfarin_risky_antibiotic`).
 
 ### ONC high-priority list: `data/onc_high.json` → [paper](https://doi.org/10.1136/amiajnl-2011-000612)
 
@@ -76,4 +76,5 @@ scenario must still show nothing above minor).
 
 | Date | Item | Checked against | By |
 | --- | --- | --- | --- |
-| | | | |
+| 2026-10-28 | Beers: all 15 single-drug + 5 combo entries | 2023 AGS Beers Criteria, Tables 2, 3, 5, 7, 8 | B (team member) |
+| 2026-10-28 | Beers fixes: ketoprofen removed (moved to Table 8); `bladder_antimuscarinics` removed; meperidine risk reworded; `warfarin_antibiotic` risk/advice reworded; conditions/exceptions added to sulfonylureas, PPIs, warfarin, metoclopramide, opioid + gabapentinoid; "do not stop suddenly" dropped where the criterion does not say it; `cns_active` / `opioid` tags extended (fentanyl, tapentadol, meperidine, metaxalone, orphenadrine) | same | B |
