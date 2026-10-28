@@ -142,9 +142,9 @@ GROUP_RULES = (
 _GROUP_SKIP = re.compile(r"keep (this and all drugs )?out of (the )?reach of children", re.I)
 #: Section headings and cross-references that openFDA runs into the first sentence.
 _GROUP_LEAD = re.compile(
-    r"^(?:[\s•·]+|\(\s*[\d.]+\s*\))*(?:\d+(?:\.\d+)*\s+)?"
+    r"^(?:[\s•·:]+|\(\s*[\d.]+\s*\)|\d+(?:\.\d+)*(?=\s)|"
     r"(?:USE IN SPECIFIC POPULATIONS|Pregnancy Risk Summary|Pregnancy|Lactation Risk Summary|Lactation|"
-    r"Nursing Mothers|Pediatric Use|Females and Males of Reproductive Potential|Warnings)?\s*:?\s*",
+    r"Nursing Mothers|Pediatric Use|Females and Males of Reproductive Potential|Warnings)\b)*",
     re.I,
 )
 _GROUP_MAX_CHARS = 320
