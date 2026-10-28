@@ -56,3 +56,23 @@ def test_unknown_medicine_gets_no_label_card(monkeypatch):
     [card] = explain.pill_cards([Medication(name="Zzzfakedrug", directions=None)])
     assert card.what_it_is_for == explain.NO_LABEL
     assert card.how_to_take is None and card.evidence == []
+
+
+def test_run_on_watch_for_items_are_dropped(monkeypatch):
+    long_item = "Do not use for children under 12 years of age with any other product containing ibuprofen even one used on the skin today or later"
+    monkeypatch.setattr(
+        llm,
+        "structured",
+        lambda prompt, t, **kw: t(what_it_is_for="Pain relief.", watch_for=[long_item, "Stomach bleeding"]),
+    )
+    [card] = explain.pill_cards([_ibuprofen()])
+    assert card.watch_for == ["Stomach bleeding"]
+
+
+def test_card_prompt_explains_lost_bullets(monkeypatch):
+    seen = []
+    monkeypatch.setattr(
+        llm, "structured", lambda prompt, t, **kw: seen.append(prompt) or t(what_it_is_for="x", watch_for=[])
+    )
+    explain.pill_cards([_ibuprofen()])
+    assert "lost its bullet points" in seen[0]
