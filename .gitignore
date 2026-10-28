@@ -1,0 +1,21 @@
+# secrets
+.env
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+# generated data (rebuild with scripts/)
+data/raw/
+data/*.sqlite
+data/*.duckdb
+# photos people take during testing: never commit
+data/photos/*
+!data/photos/.gitkeep
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,16 @@
+{
+  "title": "Major interaction: blood thinner + over-the-counter ibuprofen",
+  "patient": {"age": 72, "language": "en"},
+  "meds": [
+    {"name": "Warfarin", "strength": "5 mg", "generic_name": "warfarin", "ingredients": ["warfarin"],
+     "raw_text": "Warfarin sodium 5 mg tablet", "directions": "Take as directed by your doctor."},
+    {"name": "Ibuprofen", "strength": "200 mg", "generic_name": "ibuprofen", "ingredients": ["ibuprofen"],
+     "raw_text": "Ibuprofen tablets 200 mg (NSAID)", "directions": "Take 1 tablet every 4 to 6 hours while symptoms persist."},
+    {"name": "Acetaminophen", "strength": "500 mg", "generic_name": "acetaminophen", "ingredients": ["acetaminophen"],
+     "raw_text": "Acetaminophen 500 mg", "directions": "Take 2 caplets every 6 hours while symptoms last."}
+  ],
+  "expect": {
+    "must_flag": [{"kind": "interaction", "drugs": ["ibuprofen", "warfarin"], "min_severity": "moderate"}],
+    "max_severity": null
+  }
+}

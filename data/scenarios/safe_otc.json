@@ -1,0 +1,11 @@
+{
+  "title": "Safe list: everyday pain reliever + allergy pill",
+  "patient": {"age": 70, "language": "en"},
+  "meds": [
+    {"name": "Acetaminophen", "strength": "500 mg", "generic_name": "acetaminophen", "ingredients": ["acetaminophen"],
+     "raw_text": "Acetaminophen 500 mg extra strength", "directions": "Take 2 caplets every 6 hours while symptoms last."},
+    {"name": "Loratadine", "strength": "10 mg", "generic_name": "loratadine", "ingredients": ["loratadine"],
+     "raw_text": "Loratadine 10 mg non-drowsy allergy", "directions": "Take 1 tablet daily."}
+  ],
+  "expect": {"must_flag": [], "max_severity": "minor"}
+}

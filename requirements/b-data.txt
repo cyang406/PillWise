@@ -1,0 +1,4 @@
+# Owner: B. One package per line.
+sqlmodel
+pandas
+# duckdb                  # stretch B (Synthea)

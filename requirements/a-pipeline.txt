@@ -1,0 +1,5 @@
+# Owner: A. One package per line.
+anthropic
+pydantic-ai
+textstat
+# sentence-transformers   # stretch A drift check; heavy, uncomment when needed

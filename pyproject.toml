@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pillwise"
+version = "0.1.0"
+description = "Snap your pills. Understand them. Stay safe."
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+include = ["pillwise*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pillwise", "components"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,5 @@
+DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level
+DDInter_TEST_1,Warfarin,DDInter_TEST_2,Ibuprofen,Major
+DDInter_TEST_1,Warfarin,DDInter_TEST_3,Acetaminophen,Moderate
+DDInter_TEST_4,Diphenhydramine,DDInter_TEST_5,Oxybutynin,Moderate
+DDInter_TEST_6,Lisinopril,DDInter_TEST_2,Ibuprofen,Moderate

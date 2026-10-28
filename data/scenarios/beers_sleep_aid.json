@@ -1,0 +1,19 @@
+{
+  "title": "Older-adult risk: nighttime sleep aid + bladder pill",
+  "patient": {"age": 78, "language": "en"},
+  "meds": [
+    {"name": "Diphenhydramine", "strength": "25 mg", "generic_name": "diphenhydramine", "ingredients": ["diphenhydramine"],
+     "raw_text": "Diphenhydramine HCl 25 mg nighttime sleep-aid", "directions": "Take 2 caplets at bedtime if needed."},
+    {"name": "Oxybutynin", "strength": "5 mg", "generic_name": "oxybutynin", "ingredients": ["oxybutynin"],
+     "raw_text": "Oxybutynin chloride 5 mg tablet", "directions": "Take 1 tablet by mouth twice daily."},
+    {"name": "Lisinopril", "strength": "10 mg", "generic_name": "lisinopril", "ingredients": ["lisinopril"],
+     "raw_text": "Lisinopril 10 mg tablet", "directions": "Take 1 tablet by mouth once daily."}
+  ],
+  "expect": {
+    "must_flag": [
+      {"kind": "older_adult_risk", "drugs": ["diphenhydramine"], "min_severity": "caution"},
+      {"kind": "older_adult_combo", "drugs": ["diphenhydramine", "oxybutynin"], "min_severity": "caution"}
+    ],
+    "max_severity": null
+  }
+}

@@ -1,0 +1,7 @@
+# Owner: C. One package per line.
+streamlit>=1.36
+pandas
+plotly
+# pyvis                   # interaction graph (should)
+# reportlab               # printable PDF (should)
+# gTTS                    # read-aloud (could)
