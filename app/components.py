@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from pillwise.schemas import Finding, PillCard, Report
+from pillwise.schemas import AuditEvent, Finding, PillCard, Report
 
 # severity -> (icon, label, accent color). Labels are what people read; never show raw severity words.
 SEVERITY_STYLE = {
@@ -103,6 +103,41 @@ def checked_as(report: Report) -> None:
     with st.expander("What we checked"):
         st.caption("We match each name to its active ingredients. If one looks wrong, go back and fix the name.")
         st.markdown("\n".join(lines))
+
+
+DATA_SOURCE_NAMES = {
+    "ddinter": "DDInter drug-interaction database",
+    "onc": "ONC high-priority interaction list (Phansalkar 2012)",
+    "beers": "AGS Beers Criteria 2023 (our summaries)",
+    "mock": "Mock data",
+}
+
+
+def trust_panel(report: Report, audit_events: list[AuditEvent] | None = None) -> None:
+    """C3: every source and version behind this report, plus the audit trail when the API provides it."""
+    with st.expander("Sources and audit trail"):
+        st.markdown("**Data used for the checks**")
+        st.markdown(
+            "\n".join(f"- {DATA_SOURCE_NAMES.get(k, k)}: version {v}" for k, v in report.data_versions.items())
+            or "- none recorded"
+        )
+        labels = {ev.url: ev for f in report.findings for ev in f.evidence if ev.source == "openFDA" and ev.url}
+        if labels:
+            st.markdown("**FDA labels quoted**")
+            st.markdown("\n".join(f"- DailyMed {ev.version} ([open]({url}))" for url, ev in labels.items()))
+        st.markdown("**This report**")
+        st.markdown(
+            f"- id `{report.id}`\n- made {report.generated_at:%Y-%m-%d %H:%M} UTC\n"
+            f"- AI model (reads labels and explains only): `{report.model}`"
+        )
+        if audit_events is None:
+            st.caption("Every report is written to the audit log with the source and version of each claim.")
+        else:
+            mine = [e for e in audit_events if e.report_id == report.id]
+            st.markdown(f"**Audit log** ({len(mine)} entries for this report)")
+            for e in mine:
+                src = f" · {e.source} {e.source_version or ''}" if e.source else ""
+                st.markdown(f"- {e.timestamp:%H:%M:%S} · {e.event}{src}")
 
 
 def unchecked_box(report: Report) -> None:

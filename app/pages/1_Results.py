@@ -12,8 +12,10 @@ from components import (
     mock_banner,
     pill_card,
     summary_line,
+    trust_panel,
     unchecked_box,
 )
+from pillwise import api
 
 st.set_page_config(page_title="PillWise · Results", page_icon="💊", layout="centered")
 inject_css()
@@ -38,15 +40,9 @@ for c in report.pill_cards:
     pill_card(c)
 checked_as(report)
 
-with st.expander("Data sources and versions"):
-    st.json(
-        {
-            "report_id": report.id,
-            "generated_at": str(report.generated_at),
-            "model": report.model,
-            "data_versions": report.data_versions,
-        }
-    )
+# api.recent_audit_events is a requested additive contract change; show the log as soon as main has it.
+recent = getattr(api, "recent_audit_events", None)
+trust_panel(report, recent(200) if recent else None)
 
 st.page_link("pages/2_Summary.py", label="Read a plain-language summary", icon="📝")
 st.page_link("Home.py", label="Check another list", icon="🏠")
