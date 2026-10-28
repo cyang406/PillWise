@@ -27,6 +27,7 @@ from pillwise import evidence, llm
 from pillwise.config import get_settings
 from pillwise.schemas import (
     SAFETY_FOOTER,
+    GroupNote,
     Language,
     Medication,
     PillCard,
@@ -105,6 +106,77 @@ def _purpose_quote(label: dict) -> str | None:
     return None
 
 
+#: (group, label sections to search in order, a sentence must mention, must not mention, max quotes).
+#: Matching sentences are quoted exactly; code picks them, no LLM, and nothing here changes a finding.
+GROUP_RULES = (
+    (
+        "pregnancy",
+        ("pregnancy_or_breast_feeding", "pregnancy", "use_in_specific_populations", "warnings"),
+        r"pregnan",
+        None,
+        2,
+    ),
+    (
+        "breastfeeding",
+        ("lactation", "nursing_mothers", "use_in_specific_populations", "pregnancy_or_breast_feeding"),
+        r"breast-?feed|lactation|nursing",
+        None,
+        1,
+    ),
+    (
+        "children",
+        ("pediatric_use", "warnings", "do_not_use", "ask_doctor"),
+        r"\b(children|teenagers?|pediatric)\b",
+        r"pregnan|unborn",
+        1,
+    ),
+    (
+        "women_men",
+        ("females_and_males_of_reproductive_potential", "warnings_and_cautions", "warnings"),
+        r"\b(women|men|females?|males?)\b",
+        r"pregnan|breast",
+        1,
+    ),
+)
+#: Generic storage text, not about children taking the medicine.
+_GROUP_SKIP = re.compile(r"keep (this and all drugs )?out of (the )?reach of children", re.I)
+#: Section headings and cross-references that openFDA runs into the first sentence.
+_GROUP_LEAD = re.compile(
+    r"^(?:[\s•·]+|\(\s*[\d.]+\s*\))*(?:\d+(?:\.\d+)*\s+)?"
+    r"(?:USE IN SPECIFIC POPULATIONS|Pregnancy Risk Summary|Pregnancy|Lactation Risk Summary|Lactation|"
+    r"Nursing Mothers|Pediatric Use|Females and Males of Reproductive Potential|Warnings)?\s*:?\s*",
+    re.I,
+)
+_GROUP_MAX_CHARS = 320
+
+
+def _group_sentences(text: str):
+    for raw in re.split(r"(?<=[.!?])\s+", text):
+        s = _GROUP_LEAD.sub("", raw, count=1).strip()
+        if 25 <= len(s) <= _GROUP_MAX_CHARS and s in text:
+            yield s
+
+
+def group_notes(label: dict) -> list[GroupNote]:
+    """Label sentences about pregnancy, breastfeeding, children, women or men: exact quotes, few per group."""
+    notes: list[GroupNote] = []
+    seen: set[str] = set()
+    for group, sections, pattern, exclude, most in GROUP_RULES:
+        found = 0
+        for sec in sections:
+            for s in _group_sentences(evidence.section_text(label, sec)):
+                if found == most:
+                    break
+                if s in seen or not re.search(pattern, s, re.I) or _GROUP_SKIP.search(s):
+                    continue
+                if exclude and re.search(exclude, s, re.I):
+                    continue
+                notes.append(GroupNote(group=group, quote=s, evidence=evidence.label_evidence(label, s)))
+                seen.add(s)
+                found += 1
+    return notes
+
+
 def pill_card(med: Medication) -> PillCard:
     base = {"med_key": med.key, "name": med.name, "how_to_take": med.directions}  # COPIED, never generated
     try:
@@ -115,6 +187,7 @@ def pill_card(med: Medication) -> PillCard:
     if not label:
         return PillCard(**base, what_it_is_for=NO_LABEL)
 
+    base["special_groups"] = group_notes(label)
     quote = _purpose_quote(label)
     ev = [evidence.label_evidence(label, quote)] if quote else []
     purpose = "\n".join(evidence.section_text(label, s) for s in evidence.PURPOSE_SECTIONS).strip()

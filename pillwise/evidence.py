@@ -45,7 +45,18 @@ EVIDENCE_SECTIONS = (
 #: Sections that say what the medicine is for (used by explain.pill_cards).
 PURPOSE_SECTIONS = ("purpose", "indications_and_usage")
 
-_KEEP = set(EVIDENCE_SECTIONS) | set(PURPOSE_SECTIONS) | {"set_id", "id", "effective_time"}
+#: Sections about groups of people (used by explain.group_notes; quoted, never scored).
+POPULATION_SECTIONS = (
+    "pregnancy_or_breast_feeding",  # OTC
+    "pregnancy",  # Rx 8.1
+    "nursing_mothers",  # Rx, older labels
+    "lactation",  # Rx 8.2
+    "pediatric_use",  # Rx 8.4
+    "females_and_males_of_reproductive_potential",  # Rx 8.3
+    "use_in_specific_populations",  # Rx 8 (highlights)
+)
+
+_KEEP = set(EVIDENCE_SECTIONS) | set(PURPOSE_SECTIONS) | set(POPULATION_SECTIONS) | {"set_id", "id", "effective_time"}
 _MAX_SECTION_CHARS = 8000
 
 

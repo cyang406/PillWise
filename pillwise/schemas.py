@@ -140,6 +140,17 @@ class Finding(BaseModel):
         return SEVERITY_RANK[self.severity]
 
 
+PopulationGroup = Literal["pregnancy", "breastfeeding", "children", "women_men"]
+
+
+class GroupNote(BaseModel):
+    """What the label says about a group of people (pregnancy, children...). Shown as a quote, never scored."""
+
+    group: PopulationGroup
+    quote: str  # exact substring of the FDA label section, picked by code (no LLM)
+    evidence: Evidence
+
+
 class PillCard(BaseModel):
     """Per-medicine explanation card. Text comes from the label, explained by the LLM."""
 
@@ -149,6 +160,7 @@ class PillCard(BaseModel):
     how_to_take: str | None = None  # COPIED from bottle/label directions
     watch_for: list[str] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
+    special_groups: list[GroupNote] = Field(default_factory=list)  # label quotes for pregnancy, children...
 
 
 # ---------------------------------------------------------------------------
