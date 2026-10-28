@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from pillwise.config import get_settings
 from pillwise.schemas import (
+    AuditEvent,
     ClinicPatientSummary,
     Language,
     Medication,
@@ -91,6 +92,15 @@ def clinic_patient(patient_id: str) -> Report:
     from pillwise.agents import clinic
 
     return clinic.patient_report(patient_id)
+
+
+def recent_audit_events(limit: int = 200) -> list[AuditEvent]:
+    """Newest audit events for the UI trust panel (C3). Owner: B (audit.py). [] in mock mode (nothing logged)."""
+    if get_settings().mock:
+        return []
+    from pillwise import audit
+
+    return audit.recent_events(limit)
 
 
 def load_scenario(name: str) -> tuple[list[Medication], PatientContext]:

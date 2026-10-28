@@ -115,17 +115,19 @@ def test_start_over_clears_list(mock_mode):
 
 
 @pytest.mark.parametrize("scenario", api.list_scenarios())
-def test_results_real_offline(real_mode, scenario):
+def test_results_real_offline(real_mode, scenario, tmp_path, monkeypatch):
     """Real pipeline from data/cache (no network); needs B's DDInter DB, like the integrator's smoke test."""
     from pillwise.config import get_settings
 
     if not get_settings().ddinter_db.exists():
         pytest.skip("data/ddinter.sqlite not built (make ddinter)")
+    monkeypatch.setenv("PILLWISE_AUDIT_DB", str(tmp_path / "audit.sqlite"))
     meds, patient = api.load_scenario(scenario)
     report = api.check(meds, patient)
     at = results_page(report)
     assert not at.exception
     assert not report.is_mock and "mock mode" not in text_of(at)
     assert "Some safety checks did not run" not in text_of(at)
+    assert "**Audit log** (" in " ".join(m.value for m in at.markdown)  # C3: this report's audit entries
     if scenario == "warfarin_nsaid":
         assert "Serious" in text_of(at)

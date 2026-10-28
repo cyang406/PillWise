@@ -58,6 +58,7 @@ EXPECTED_API = {
     "quiz": ["report", "n"],
     "clinic_scan": ["limit"],
     "clinic_patient": ["patient_id"],
+    "recent_audit_events": ["limit"],
     "load_scenario": ["name"],
     "list_scenarios": [],
 }

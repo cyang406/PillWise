@@ -40,9 +40,7 @@ for c in report.pill_cards:
     pill_card(c)
 checked_as(report)
 
-# api.recent_audit_events is a requested additive contract change; show the log as soon as main has it.
-recent = getattr(api, "recent_audit_events", None)
-trust_panel(report, recent(200) if recent else None)
+trust_panel(report, None if report.is_mock else api.recent_audit_events(200))
 
 st.page_link("pages/2_Summary.py", label="Read a plain-language summary", icon="📝")
 st.page_link("Home.py", label="Check another list", icon="🏠")
