@@ -14,6 +14,14 @@ Written by the integration agent (see CLAUDE.md, "Integration protocol"). Newest
 - Contract requests raised:
 - Risks for the demo:
 
+## 13:01 · contract commit on main (docs/PARALLEL_AB.md)
+- `mocks.mock_check_result()` added (+ contract test).
+- `config.openai_api_key` added (additive). `.env.example` now lists `OPENAI_API_KEY` and OpenAI model names. Code defaults for `model_main` / `model_fast` were left unchanged (additive-only rule after 12:30); set them in `.env`.
+- `schemas.Medication.ingredients`: comment only. Lower-case RxNorm IN names.
+- Ownership: A gains `data/cache/` and `tests/fixtures/pipeline/`; B gains `pillwise/synthea.py` and `data/photos/`; `pillwise/agents/` is A only. B11 moved to A as A12.
+- `tests/conftest.py`: `real_mode` now also sets `PILLWISE_OFFLINE=1`, so real-mode tests never use the network (CLAUDE.md "No network in tests"). Missing cache entries degrade evidence and cards; findings are unaffected.
+- Every role branch: run `git merge main` now.
+
 ## 12:49 · integration/1249 (local, not yet merged into main) · tag cp1 pending
 - Branch heads merged: b-data `ce014fc`, a-pipeline `ad3cda0` (local, not pushed). c-ui: no remote branch yet.
 - Conflicts and how they were resolved: none. Both merges were clean.

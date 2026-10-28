@@ -36,6 +36,7 @@ class Settings:
 
     anthropic_api_key: str | None = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
     openfda_api_key: str | None = field(default_factory=lambda: os.getenv("OPENFDA_API_KEY"))
+    openai_api_key: str | None = field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
 
     # Models: reasoning/vision vs. cheap text steps.
     model_main: str = field(default_factory=lambda: os.getenv("PILLWISE_MODEL_MAIN", "claude-sonnet-5-5"))

@@ -32,7 +32,8 @@ handoff file. Tick boxes in your own handoff file, not here.
 - [ ] A10 `explain.make_quiz` (Could).
 
 **Stretch B (Could, 16:30–17:30, with B)**
-- [ ] A11 `agents/clinic.py`: planner + reviewer agents over `orchestrator.build_report`; every tool call audited.
+- [ ] A11 `agents/clinic.py`: planner + reviewer agents over `orchestrator.build_report`, reading patients from B's `pillwise/synthea.py`; every tool call audited.
+- [ ] A12 Warm `data/cache/` for every scenario drug (run the real pipeline once online) and commit it. (Moved from B11.)
 
 ## B: data and rules (`b-data`)
 
@@ -44,12 +45,12 @@ handoff file. Tick boxes in your own handoff file, not here.
 - [ ] B5 `data/onc_high.json`: verify pairs against the paper; `checks/onc.py`.
 - [ ] B6 `audit.py`: SQLite table + `log_report` / `log_event` / `recent_events`.
 - [ ] B7 Fill `CheckResult.unmatched` in `checks/__init__.py`.
-- [ ] B8 Tests `tests/test_checks_*.py` using `tests/fixtures/` (no network).
+- [ ] B8 Tests `tests/test_checks_*.py` using `tests/fixtures/` (no network), incl. a drug-name-list test that every scenario drug is in the DDInter DB.
 - [ ] B9 Prepare the 3 real bottles + photos for the scenarios (keep photos out of git).
 
 **Stretch (Should/Could)**
 - [ ] B10 Drug-food warnings (`kind="food"`) from DDInter if the download includes them.
-- [ ] B11 Warm `data/cache/` for every scenario drug (run the real pipeline once online) and commit it.
+- ~~B11 Warm `data/cache/`~~: moved to A (A12), see docs/PARALLEL_AB.md.
 - [ ] B12 Synthea 200 patients aged 65+ → `data/synthea.duckdb` (`scripts/gen_synthea.sh`, `load_synthea.py`).
 
 ## C: UI, demo and pitch (`c-ui`)

@@ -219,3 +219,13 @@ def mock_clinic_patient(patient_id: str) -> Report:
 
     meds, patient = load_scenario("warfarin_nsaid")
     return mock_report(meds, patient)
+
+
+def mock_check_result(meds: list[Medication], patient: PatientContext):
+    """Same canned rules as mock_report, in the shape of checks.run_all() (docs/PARALLEL_AB.md seam 2).
+
+    Lets A run orchestrator -> evidence -> explain before B's real checkers exist.
+    """
+    from pillwise.checks.base import CheckResult
+
+    return CheckResult(findings=mock_report(meds, patient).findings, versions={"mock": MOCK_VERSION})
