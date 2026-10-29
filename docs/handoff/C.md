@@ -87,6 +87,8 @@ Native screens would mean a second copy that could drift from it, plus a new HTT
 - All ages: copy no longer says "65+ checks"; `PillCard.special_groups` (contract, additive) quotes FDA label sentences about pregnancy, breastfeeding, children and women/men, picked by code from the label's population sections (`explain.group_notes`, tests in `tests/test_pipeline_groups.py`). No gender field: no rule uses it. `data/cache/` re-warmed online (labels now keep those sections; naproxen added for the Aleve demo).
 - English user guide for the demo: https://claude.ai/artifact/8XNEENcSHW8WRqhTyRoQuP. `docs/DEMO.md` rewritten for the 5-minute recorded demo.
 
+- Design v4 (17:00): age and medicines in one block; no "Matches my bottle" checkbox (unmatched names flagged by the RxNorm badge and a warning); results as a heatmap of the person's medicines (diagonal = the medicine alone, e.g. Beers), hover or tap a square for the finding and both medicines' purpose, tap a name on the left for "About this medicine"; full finding cards with sources in an expander. `mobile/README.md`: step-by-step phone use and iPhone Mirroring demo.
+
 ## Stubbed or still mock
 - 
 

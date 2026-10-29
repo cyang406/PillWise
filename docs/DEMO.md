@@ -22,28 +22,20 @@ Expo Go (see `mobile/README.md`), browser zoom at 125% so text reads on video.
 | Time | Beat | Show | Say |
 | --- | --- | --- | --- |
 | 0:00 | Problem | Bottles on the table | Many people take medicines from several doctors and the pharmacy shelf. Nobody sees the whole list, and a chatbot can't show where its answer came from. |
-| 0:40 | Add | Upload both photos at once; names appear. Type "Acetaminophen 500 mg". Untick a row (orange), tick it again. | Labels are read by AI, but nothing is checked until you confirm. A misread letter can turn one real medicine into another, so you tick each one against the bottle. Photos are never stored. |
-| 1:40 | Verdict | Check my list. The verdict banner; open "Sources" on the red card. | One sentence says what to do today. The level comes from DDInter, not from the AI; here is the record and the exact FDA label sentence, with its version. |
-| 2:30 | Understand | "How they connect"; About each medicine → Warfarin: directions copied from the label, the pregnancy quotes; the summary at reading level 5.1; answer one quiz question. | Anyone can use this, at any age, with no pharmacology background. Directions are copied, never generated; what the label says about pregnancy and children is quoted exactly. |
+| 0:40 | Add | Type the age, upload both photos at once; names appear with "Matched: …". Type "Acetaminophen 500 mg". | Labels are read by AI and every name is looked up in RxNorm; one we can't match is flagged before anything is checked. Photos are never stored. |
+| 1:40 | Verdict | Check my list. The verdict banner, then the heatmap: hover the red square. | One sentence says what to do today. The level comes from DDInter, not from the AI; hover shows what was found and what each medicine is for; the findings list has the DDInter record and the exact FDA label sentence. |
+| 2:30 | Understand | Tap "Warfarin" on the left of the heatmap (About this medicine): directions copied from the label, the pregnancy quotes; the summary at reading level 5.1; answer one quiz question. | Anyone can use this, at any age, with no pharmacology background. Directions are copied, never generated; what the label says about pregnancy and children is quoted exactly. |
 | 3:20 | Act | Questions to ask; Share; Pharmacy file (FHIR). Then "Buying something new?" with Aleve. | You leave with questions for your pharmacist, a file for family and one their system can import. Before buying Aleve: it is Serious with warfarin. |
 | 4:10 | Trust + phone | Sources and audit trail; then the phone app: launch disclaimer, Take a photo. | Every claim has a source, a version and an audit entry. Same page on iPhone and Android. |
 | 4:40 | Close | Verdict banner | Rules and data decide; AI only reads and explains. Governed data in, sourced answers out: the pattern Solix applies to enterprise data, pointed at a kitchen table. |
 
 ## Phone part of the demo (iPhone)
 
-1. Laptop: `PILLWISE_MOCK=0 uv run --no-project make app` (port 8501).
-2. Phone and laptop on the same network. Venue Wi-Fi often blocks device-to-device traffic: if the phone
-   can't open `http://<laptop IP>:8501` in Safari, turn on the iPhone's Personal Hotspot, join it from the
-   Mac, and use the Mac's new IP (`ipconfig getifaddr en0`).
-3. `cd mobile && npm install && EXPO_PUBLIC_PILLWISE_URL=http://<laptop IP>:8501 npx expo start`, then scan
-   the QR code with the iPhone Camera app (opens in Expo Go).
-4. Taking a picture: use **Add bottle photos → Take Photo** (works over plain http). The in-page
-   "Take a photo" camera needs an HTTPS address (a tunnel); skip it unless one is set up.
-5. Showing it on the recording:
-   - **iPhone Mirroring** (macOS 15+ / iOS 18+): good for tapping through the app with the mouse, but the
-     camera isn't available while mirroring, so pick photos from the library instead.
-   - **To show the live camera**: connect the iPhone by cable, QuickTime Player → File → New Movie
-     Recording → camera menu → your iPhone. This shows the phone screen while you hold and use it.
+Step by step, including iPhone Mirroring: `mobile/README.md`. In short: Expo Go on the iPhone, the web app
+on the Mac, `EXPO_PUBLIC_PILLWISE_URL=http://<Mac IP>:8501 npx expo start`, scan the QR code; then lock the
+iPhone and open iPhone Mirroring on the Mac to drive and screen-record it. The camera doesn't work while
+mirroring, so pick bottle photos from the library there, and record the live-camera shot separately
+with QuickTime (iPhone by cable as the camera).
 
 ## If a judge asks
 

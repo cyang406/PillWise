@@ -1,4 +1,4 @@
-"""PillWise, one page (design canvas v2): you & your pills -> results -> ask your pharmacist. Owner: C.
+"""PillWise, one page (design canvas v4): you & your pills -> results -> ask your pharmacist. Owner: C.
 
 Run:  streamlit run app/Home.py
 """
@@ -16,9 +16,9 @@ from components import (
     PILL_ICON,
     SEVERITY_STYLE,
     checked_as,
-    connections_box,
     disclaimer,
     finding_card,
+    heatmap,
     in_mobile_app,
     inject_css,
     list_signature,
@@ -37,7 +37,7 @@ from pillwise.schemas import Medication, PatientContext
 st.set_page_config(page_title="PillWise", page_icon=":material/medication:", layout="wide")
 
 ss = st.session_state
-ss.setdefault("items", [])  # [{"id", "med": Medication, "ok": bool}]; ok = "matches my bottle"
+ss.setdefault("items", [])  # [{"id", "med": Medication}]
 ss.setdefault("report", None)
 ss.setdefault("report_sig", None)
 ss.setdefault("read_ids", set())  # photos already read, so a rerun never reads the same bottle twice
@@ -54,12 +54,12 @@ def _matched(meds: list[Medication]) -> list[Medication]:
         return meds
 
 
-def add_meds(meds: list[Medication], ok: bool = False) -> None:
-    meds = _matched(meds)
-    # A name RxNorm can't match starts unticked, so the person looks at it again.
-    ss["items"] = ss["items"] + [
-        {"id": uuid.uuid4().hex[:8], "med": m, "ok": ok and bool(m.ingredients or m.generic_name)} for m in meds
-    ]
+def add_meds(meds: list[Medication]) -> None:
+    ss["items"] = ss["items"] + [{"id": uuid.uuid4().hex[:8], "med": m} for m in _matched(meds)]
+
+
+def _is_matched(m: Medication) -> bool:
+    return bool(m.ingredients or m.generic_name)
 
 
 def _same_med(m: Medication) -> tuple[str, str]:
@@ -138,9 +138,9 @@ st.markdown("Photograph each bottle. We explain each one in plain words and tell
 if get_settings().mock:
     st.caption("Running in mock mode (PILLWISE_MOCK=1).")
 
-left, right = st.columns([1, 1.35], gap="large")
-with left:
-    with st.container(border=True, key="agebox"):
+with st.container(border=True, key="startbox"):
+    a_l, a_r = st.columns([1, 2.4], vertical_alignment="bottom")
+    with a_l:
         st.markdown('<div class="pw-step"><b>Step 1 ·</b> Your age</div>', unsafe_allow_html=True)
         age = st.number_input(
             "Your age (optional)",
@@ -151,10 +151,8 @@ with left:
             placeholder="e.g. 45",
             label_visibility="collapsed",
         )
-        st.caption("Optional. Some medicines need extra care after 65. Not saved.")
-    disclaimer()
+    a_r.caption("Optional. Some medicines need extra care after 65. Not saved.")
 
-with right:
     st.markdown('<div class="pw-step"><b>Step 2 ·</b> Your medicines</div>', unsafe_allow_html=True)
     if in_mobile_app():
         shot = st.camera_input("Take a photo of a bottle label")
@@ -171,9 +169,8 @@ with right:
 
     for it in list(ss["items"]):
         m: Medication = it["med"]
-        it["ok"] = ss.get(f"ok_{it['id']}", it["ok"])  # the click that just happened, so the frame matches it
-        with st.container(border=True, key=f"med-{it['id']}-{'ok' if it['ok'] else 'check'}"):
-            c_info, c_ok = st.columns([5, 1.6], vertical_alignment="center")
+        with st.container(border=True, key=f"med-{it['id']}-{'ok' if _is_matched(m) else 'check'}"):
+            c_info, c_act = st.columns([4, 2], vertical_alignment="center")
             note = m.directions or "No directions read from the label"
             c_info.markdown(
                 f'<div style="display:flex;gap:.8rem;align-items:center">{PILL_ICON}<div>'
@@ -181,8 +178,7 @@ with right:
                 f'<br><span class="pw-src">{note}</span></div></div>',
                 unsafe_allow_html=True,
             )
-            it["ok"] = c_ok.checkbox("Matches", value=it["ok"], key=f"ok_{it['id']}", help="Matches my bottle")
-            e_col, r_col = c_ok.columns(2)
+            e_col, r_col = c_act.columns(2)
             with e_col.popover("Edit", icon=":material/edit:"):
                 with st.form(f"edit_{it['id']}"):
                     new_name = st.text_input("Medicine name", m.name)
@@ -199,8 +195,6 @@ with right:
                             it["med"] = _matched([m.model_copy(update=data)])[0]
                         else:
                             it["med"] = m.model_copy(update=data)
-                        it["ok"] = True
-                        ss[f"ok_{it['id']}"] = True
                         st.rerun()
             if r_col.button("Remove", key=f"rm_{it['id']}", icon=":material/delete:"):
                 ss["items"] = [x for x in ss["items"] if x["id"] != it["id"]]
@@ -218,8 +212,7 @@ with right:
                         Medication(
                             name=name.strip(), strength=strength.strip() or None, directions=directions.strip() or None
                         )
-                    ],
-                    ok=True,
+                    ]
                 )
                 st.rerun()
     with s_col2, st.popover("Try a sample", icon=":material/science:", width="stretch"):
@@ -227,13 +220,16 @@ with right:
             if st.button(sc.replace("_", " ").capitalize(), key=f"sc_{sc}", width="stretch"):
                 meds, patient = api.load_scenario(sc)
                 ss["items"] = []
-                add_meds(meds, ok=True)
+                add_meds(meds)
                 ss.age = patient.age
                 st.rerun()
 
-    not_ticked = [it["med"].name for it in ss["items"] if not it["ok"]]
-    if not_ticked:
-        st.warning("Please check: " + ", ".join(not_ticked) + ". Tick each one that matches your bottle.")
+    unmatched = [it["med"].name for it in ss["items"] if not _is_matched(it["med"])]
+    if unmatched:
+        st.warning(
+            "We could not match: " + ", ".join(unmatched) + ". Check the spelling against the bottle; "
+            "otherwise it will be listed as “could not check”."
+        )
     if st.button("Check my list", type="primary", disabled=not ss["items"], width="stretch"):
         confirmed = [it["med"].model_copy(update={"confirmed": True}) for it in ss["items"]]
         with st.spinner("Checking your list..."):
@@ -241,6 +237,7 @@ with right:
         ss.report_sig = list_signature([it["med"] for it in ss["items"]], int(age) if age else None)
         for k in ("summary_for", "summary", "quiz_questions", "newmed"):
             ss.pop(k, None)
+disclaimer()
 
 report = ss.report
 current = list_signature([it["med"] for it in ss["items"]], int(age) if age else None)
@@ -255,13 +252,11 @@ st.header("Results", anchor="results")
 mock_banner(report)
 verdict_banner(report)
 unchecked_box(report)
-f_col, a_col2 = st.columns([2, 1], gap="medium")
-with f_col:
+heatmap(report)
+with st.expander(f"All {len(report.findings)} findings, with what to do and sources"):
     for f in report.sorted_findings():
         finding_card(f)
-    checked_as(report)
-with a_col2:
-    connections_box(report)
+checked_as(report)
 
 # --- 3. Ask your pharmacist ---------------------------------------------------------------
 with st.container(border=True, key="pharm"):

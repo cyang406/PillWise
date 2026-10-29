@@ -7,6 +7,8 @@ drops or re-rates one (safety rule 1).
 
 from __future__ import annotations
 
+import html
+
 import streamlit as st
 
 from pillwise.schemas import AuditEvent, Finding, GroupNote, Medication, PillCard, Report
@@ -116,12 +118,39 @@ h1, h2, h3, h4 {{ letter-spacing: -0.02em; }}
 .pw-quote {{ margin: 0 0 .6rem; padding-left: .75rem; border-left: 3px solid #CBD5E1; color: #334155; }}
 .pw-src {{ font-size: .8rem; color: #475569; }}
 [class*="st-key-sev-"] {{ background: #F5F7FB; border: 0 !important; }}
-[class*="st-key-med-"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-med-"] {{ background: #FFFFFF; border: 0 !important; }}
 [class*="st-key-med-"][class*="-check"] {{ background: #FFF8EB; border: 1px solid #F5C99B !important; }}
-[class*="st-key-agebox"], [class*="st-key-pharm"] {{ background: #F5F7FB; border: 0 !important; }}
+[class*="st-key-startbox"], [class*="st-key-pharm"] {{ background: #F5F7FB; border: 0 !important; }}
 [class*="st-key-newmed"] {{ background: #2563EB; border: 0 !important; }}
 [class*="st-key-newmed"] h4, [class*="st-key-newmed"] [data-testid="stWidgetLabel"] p {{ color: #FFFFFF !important; }}
-[class*="st-key-open_"] button {{ background: #EFF4FF; color: #1D4ED8; border: 0; font-weight: 600; }}
+[class*="st-key-hm_"] button {{ background: #EFF4FF; color: #1D4ED8; border: 0; font-weight: 600; justify-content: flex-start;
+  min-height: 3rem; }}
+[class*="st-key-hm-"] > div {{ flex: 1 1 0; min-width: 0; }}
+[class*="st-key-hm-"] > div:first-child {{ flex: 0 0 150px; }}
+[class*="st-key-heatmap"] {{ overflow: visible; }}
+.pw-hm-h {{ font-size: .8rem; font-weight: 600; text-align: center; overflow-wrap: anywhere; }}
+.pw-hm-cell {{ position: relative; min-height: 3rem; display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; font-size: .8rem; font-weight: 600; cursor: pointer; text-align: center; }}
+.pw-hm-empty {{ background: #F5F7FB; color: #64748B; }}
+.pw-hm-self {{ background: repeating-linear-gradient(45deg, #F5F7FB, #F5F7FB 6px, #EEF2F7 6px, #EEF2F7 12px); }}
+.pw-hm-cell:hover, .pw-hm-cell:focus {{ outline: 3px solid #93B4F8; outline-offset: 1px; z-index: 30; }}
+.pw-tip {{ display: none; position: absolute; top: calc(100% + 6px); width: 300px; max-width: 80vw; z-index: 40;
+  padding: .7rem .8rem; border-radius: 12px; background: #FFFFFF; color: #0F172A; text-align: left; font-weight: 400;
+  font-size: .85rem; line-height: 1.45; box-shadow: 0 10px 30px rgba(15,23,42,.18); border: 1px solid #E2E8F0; }}
+.pw-tip-l {{ left: 0; }} .pw-tip-r {{ right: 0; }}
+.pw-hm-cell:hover .pw-tip, .pw-hm-cell:focus .pw-tip, .pw-hm-cell:focus-within .pw-tip {{ display: block; }}
+[data-testid="stElementContainer"]:has(.pw-hm-cell:hover), [data-testid="stElementContainer"]:has(.pw-hm-cell:focus) {{ z-index: 50; }}
+[class*="st-key-hm-row-"] {{ overflow: visible; }}
+.pw-s {{ display: none; }}
+@media (max-width: 640px) {{
+  .pw-l {{ display: none; }} .pw-s {{ display: inline; }}
+  .pw-hm-h {{ font-size: .66rem; overflow-wrap: anywhere; hyphens: auto; }}
+  [class*="st-key-hm-"] > div:first-child {{ flex: 0 0 96px; max-width: 96px; }}
+  [class*="st-key-hm_"], [class*="st-key-hm_"] button {{ width: 100% !important; }}
+  [class*="st-key-hm_"] button {{ font-size: .78rem; padding: .25rem .4rem; }}
+  .pw-tip {{ position: fixed; left: 12px; right: 12px; top: auto; bottom: 12px; width: auto; max-width: none;
+    max-height: 60vh; overflow-y: auto; }}
+}}
 [class*="st-key-detail-"] {{ background: #F5F7FB; border: 0 !important; }}
 [class*="st-key-detail-caution"] {{ background: #FFF8EB; color: #78350F; }}
 [class*="st-key-detail-with"] {{ background: #FFFFFF; border: 1px solid #E2E8F0 !important; }}
@@ -281,48 +310,83 @@ def finding_card(f: Finding, where: str = "main") -> None:
                 st.markdown(f"> “{ev.text}”" if ev.source == "openFDA" else f"> {ev.text}")
 
 
-def connections_box(report: Report) -> None:
-    """Matrix of the person's medicines (design v3); tap a medicine name to open "About this medicine"."""
-    with st.container(border=True, key="connect"):
-        st.markdown("#### How they connect")
-        st.caption("Tap a medicine name to learn about it.")
-        meds = [m for m in report.meds if m.match_names]
-        pair_sev = {frozenset((a, b)): s for a, b, s in connections(report)}
+def _esc(s: str) -> str:
+    return html.escape(s, quote=True)
 
-        def sev(i: int, j: int) -> str | None:
-            for a in meds[i].match_names:
-                for b in meds[j].match_names:
-                    if frozenset((a, b)) in pair_sev:
-                        return pair_sev[frozenset((a, b))]
-            return None
 
-        if not pair_sev:
-            st.caption("No interactions between your medicines were found in our sources.")
-        elif len(meds) <= 5:
-            cols = f"grid-template-columns: minmax(0, 1.25fr) repeat({len(meds)}, minmax(0, 1fr))"
-            cells = ['<span class="h"></span>'] + [f'<span class="h">{m.name}</span>' for m in meds]
-            for i, m in enumerate(meds):
-                cells.append(f'<span class="r">{m.name}</span>')
-                for j in range(len(meds)):
-                    s = sev(i, j) if i != j else None
-                    cells.append(
-                        f'<span class="pw-cell-{s}">{SEVERITY_STYLE[s][0]}</span>' if s else '<span class="e"></span>'
+def _cell_findings(report: Report, a: Medication, b: Medication) -> list[Finding]:
+    """Findings that involve both medicines (a == b: findings about that medicine alone)."""
+    na, nb = set(a.match_names), set(b.match_names)
+    if a is b:
+        return [f for f in report.sorted_findings() if set(f.drugs) <= na]
+    return [f for f in report.sorted_findings() if set(f.drugs) & na and set(f.drugs) & nb]
+
+
+def _tip(a: Medication, b: Medication, fs: list[Finding], cards: dict[str, PillCard]) -> str:
+    """Hover / tap text: what the checkers found for this pair, then what each medicine is for."""
+    title = a.name if a is b else f"{a.name} + {b.name}"
+    head = SEVERITY_STYLE[fs[0].severity][0] if fs else "Nothing found"
+    parts = [f"<b>{_esc(title)} · {head}</b>"]
+    for f in fs:
+        parts.append(
+            f'<span class="pw-ink-{f.severity}"><b>{SEVERITY_STYLE[f.severity][0]}:</b></span> {_esc(f.plain_summary)}'
+        )
+    if not fs:
+        parts.append("Nothing found in our sources. That does not mean it is safe.")
+    for m in (a,) if a is b else (a, b):
+        c = cards.get(m.key)
+        if c:
+            parts.append(f"<b>{_esc(m.name)}:</b> {_esc(c.what_it_is_for)}")
+    return "<br>".join(parts)
+
+
+def heatmap(report: Report) -> None:
+    """Results as a heatmap of the person's medicines (design v4).
+
+    Hover or tap a square: what was found for that pair and what each medicine is for. The diagonal is the
+    medicine on its own (e.g. extra care at 65+). Tap a medicine name on the left for "About this medicine".
+    Cell levels come straight from the findings (safety rule 1); an empty square is "nothing found", never "safe".
+    """
+    meds = list(report.meds)
+    cards = {c.med_key: c for c in report.pill_cards}
+    if not meds:
+        return
+    with st.container(border=True, key="heatmap"):
+        st.markdown("#### How your medicines mix")
+        st.caption("Hover or tap a square to see both medicines. Tap a name on the left to learn about it.")
+        with st.container(horizontal=True, gap="small", key="hm-head"):
+            st.markdown("&nbsp;", width=150)
+            for m in meds:
+                st.markdown(f'<div class="pw-hm-h" lang="en">{_esc(m.name)}</div>', unsafe_allow_html=True)
+        n = len(meds)
+        for i, a in enumerate(meds):
+            with st.container(horizontal=True, gap="small", vertical_alignment="center", key=f"hm-row-{i}"):
+                c = cards.get(a.key)
+                if st.button(a.name, key=f"hm_{report.id}_{i}", width=150, help=f"About {a.name}") and c:
+                    medicine_dialog(c, a, report)
+                for j, b in enumerate(meds):
+                    fs = _cell_findings(report, a, a if i == j else b)
+                    sev = fs[0].severity if fs else None
+                    label = SEVERITY_STYLE[sev][0] if sev else ""
+                    short = {"Important": "Imp.", "Age 65+": "65+", "Not rated": "?"}.get(label, label)
+                    side = "pw-tip-r" if j >= n / 2 else "pw-tip-l"
+                    cls = f"pw-hm-cell pw-cell-{sev}" if sev else "pw-hm-cell pw-hm-empty"
+                    if i == j and not sev:
+                        cls += " pw-hm-self"
+                    st.markdown(
+                        f'<div class="{cls}" tabindex="0" role="button" aria-label="{_esc(a.name)} and {_esc(b.name)}: '
+                        f'{label or "nothing found"}"><span class="pw-l">{label}</span><span class="pw-s">{short}</span><div class="pw-tip {side}">{_tip(a, a if i == j else b, fs, cards)}</div></div>',
+                        unsafe_allow_html=True,
                     )
-            st.markdown(
-                f'<div class="pw-matrix" lang="en" style="{cols}" role="table" aria-label="Interactions between your medicines">'
-                + "".join(cells)
-                + "</div>",
-                unsafe_allow_html=True,
-            )
-            st.caption("Not rated = listed together, but how serious is unknown. Empty = nothing found in our sources.")
-        else:
-            for a, b, s in connections(report):
-                st.markdown(f"{a.capitalize()} + {b.capitalize()}: **{SEVERITY_STYLE[s][0]}**")
-        by_key = {m.key: m for m in report.meds}
-        with st.container(horizontal=True, wrap=True, gap="small"):
-            for i, c in enumerate(report.pill_cards):
-                if st.button(c.name, key=f"open_{report.id}_{i}", icon=":material/info:"):
-                    medicine_dialog(c, by_key.get(c.med_key), report)
+        legend = "".join(
+            f'<span class="pw-chip pw-cell-{s}">{SEVERITY_STYLE[s][0]}</span>'
+            for s in ("major", "moderate", "caution", "unknown")
+        )
+        st.markdown(legend + '<span class="pw-chip pw-hm-empty">Empty = nothing found</span>', unsafe_allow_html=True)
+        st.caption(
+            "Not rated: the DDInter database lists these two together as an interaction but gives no severity level. "
+            "Empty does not mean safe; it means our sources have no record of that pair."
+        )
 
 
 def checked_as(report: Report) -> None:
