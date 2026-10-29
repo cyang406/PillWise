@@ -32,7 +32,7 @@ Hackathon 2026 (AI in Healthcare). Submission deadline: 2026-10-28 19:00 PT.
 | --- | --- | --- |
 | `a-pipeline` | A: pipeline and agents | `pillwise/llm.py`, `extract.py`, `normalize.py`, `evidence.py`, `explain.py`, `orchestrator.py`, `http_cache.py`, `pillwise/agents/`, `data/cache/`, `tests/test_pipeline_*.py`, `tests/fixtures/pipeline/`, `requirements/a-pipeline.txt`, `docs/handoff/A.md` |
 | `b-data` | B: data and rules | `pillwise/checks/` (except `base.py`), `pillwise/audit.py`, `pillwise/synthea.py`, `data/beers.json`, `data/onc_high.json`, `data/scenarios/`, `data/photos/`, `scripts/` (except `run_scenarios.py`), `tests/test_checks_*.py`, `tests/test_load_*.py`, `tests/fixtures/` (except `pipeline/`), `requirements/b-data.txt`, `docs/handoff/B.md`, `docs/DATA_SOURCES.md` |
-| `c-ui` | C: UI, demo and pitch | `app/`, `.streamlit/`, `assets/`, `tests/test_app_*.py`, `requirements/c-ui.txt`, `docs/handoff/C.md`, `docs/DEMO.md` |
+| `c-ui` | C: UI, demo and pitch | `app/`, `.streamlit/`, `assets/`, `tests/test_app_*.py`, `requirements/c-ui.txt`, `docs/handoff/C.md`, `docs/DEMO.md`, `mobile/`, `.claude/skills/`, `.mcp.json` |
 | `main` | shared contract | `pillwise/schemas.py`, `pillwise/api.py`, `pillwise/config.py`, `pillwise/mocks.py`, `pillwise/checks/base.py`, `scripts/run_scenarios.py`, `tests/test_contracts.py`, `tests/test_scenarios.py`, `tests/conftest.py`, `requirements.txt`, `requirements/base.txt`, `pyproject.toml`, `Makefile`, `.env.example`, `.gitignore`, `README.md`, `CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/TASKS.md`, `docs/INTEGRATION_LOG.md` |
 
 **Working on a role branch:** edit only files your role owns. If you need

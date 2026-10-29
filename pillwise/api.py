@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from pillwise.config import get_settings
 from pillwise.schemas import (
+    AuditEvent,
     ClinicPatientSummary,
     Language,
     Medication,
@@ -91,6 +92,29 @@ def clinic_patient(patient_id: str) -> Report:
     from pillwise.agents import clinic
 
     return clinic.patient_report(patient_id)
+
+
+def match_names(meds: list[Medication]) -> list[Medication]:
+    """Name -> RxNorm ingredients only (no checks), so the UI can flag names it can't match before checking.
+
+    Owner: A (normalize.py). Unmatched medicines come back unchanged (no ingredients); never a reason to say "safe".
+    """
+    if get_settings().mock:
+        from pillwise import mocks
+
+        return mocks.mock_match_names(meds)
+    from pillwise import normalize
+
+    return normalize.normalize_all(meds)
+
+
+def recent_audit_events(limit: int = 200) -> list[AuditEvent]:
+    """Newest audit events for the UI trust panel (C3). Owner: B (audit.py). [] in mock mode (nothing logged)."""
+    if get_settings().mock:
+        return []
+    from pillwise import audit
+
+    return audit.recent_events(limit)
 
 
 def load_scenario(name: str) -> tuple[list[Medication], PatientContext]:

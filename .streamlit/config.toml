@@ -1,0 +1,26 @@
+# Owner: C. Streamlit settings for the PillWise UI (one page; see the design canvas in docs/handoff/C.md).
+
+[theme]
+base = "light"
+# Inter, from the design canvas; falls back to sans-serif offline.
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+baseFontSize = 17
+baseRadius = "large"
+# Blue, not Streamlit's default red: red is reserved for "Serious" findings.
+primaryColor = "#2563EB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F7FB"
+textColor = "#0F172A"
+borderColor = "#E2E8F0"
+
+[client]
+# Hide the developer toolbar ("Deploy" etc.) and the page list (PillWise is one page).
+toolbarMode = "minimal"
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false
+
+[server]
+# Bottle photos from phones can be large; Streamlit's default is 200 MB, 25 MB is plenty.
+maxUploadSize = 25

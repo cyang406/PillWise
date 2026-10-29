@@ -2,6 +2,7 @@
 streamlit>=1.36
 pandas
 plotly
+fhir.resources>=8      # C16: validates the FHIR export (tests)
 # pyvis                   # interaction graph (should)
 # reportlab               # printable PDF (should)
 # gTTS                    # read-aloud (could)

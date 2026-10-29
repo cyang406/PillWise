@@ -229,3 +229,13 @@ def mock_check_result(meds: list[Medication], patient: PatientContext):
     from pillwise.checks.base import CheckResult
 
     return CheckResult(findings=mock_report(meds, patient).findings, versions={"mock": MOCK_VERSION})
+
+
+def mock_match_names(meds: list[Medication]) -> list[Medication]:
+    """Same shape as normalize.normalize_all: known names get their ingredient, others stay unmatched."""
+    return [
+        m
+        if m.ingredients or m.key not in _KNOWN
+        else m.model_copy(update={"generic_name": m.key, "ingredients": [m.key]})
+        for m in meds
+    ]

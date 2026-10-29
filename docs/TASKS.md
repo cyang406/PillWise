@@ -69,6 +69,12 @@ handoff file. Tick boxes in your own handoff file, not here.
 - [ ] C9 Teach-back quiz UI; read-aloud (gTTS).
 - [ ] C10 Clinic view page (skeleton exists).
 
+**Mobile and platform (added 13:45, see docs/handoff/C.md)**
+- [ ] C13 `mobile/`: Expo app for iOS and Android wrapping the web app in a WebView (demo via Expo Go).
+- [ ] C14 Public HTTPS URL for the web app + QR code (phone cameras need HTTPS).
+- [ ] C15 Native screens over a REST API, store builds (after the hackathon).
+- [ ] C16 Export the confirmed list as FHIR `MedicationStatement` JSON.
+
 **Demo and submission (17:30–18:45)**
 - [ ] C11 `docs/DEMO.md`: 2-minute script; record backup video.
 - [ ] C12 Slides / Devpost text: problem, solution, architecture diagram, guardrails, data sources.
