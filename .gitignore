@@ -21,6 +21,7 @@ data/photos/*
 .vscode/
 # mobile app (Expo)
 node_modules/
+mobile/node_modules/
 .expo/
 mobile/ios/
 mobile/android/
